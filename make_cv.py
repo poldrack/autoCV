@@ -20,27 +20,32 @@ from Bio import Entrez
 import json
 import os
 
-Entrez.email = 'russpold@stanford.edu'
 
+if os.path.exists('params.json'):
+    with open('params.json') as f:
+        params = json.load(f)
+    Entrez.email = params['email']
+    print(f'using {Entrez.email} for Entrez service')
+    query = params['query']
+    print('searching for', query)
+else:
+    raise FileNotFoundError('Please create a json file called params.json containing the fields email (with your email address) and query (with your pubmed query)- see documentation for help')
 # +
 retmax = 1000
-handle = Entrez.esearch(db="pubmed", retmax=retmax,term='poldrack-r')
+handle = Entrez.esearch(db="pubmed", retmax=retmax, term=query)
 record = Entrez.read(handle)
 handle.close()
-pmids=[int(i) for i in record['IdList']]
+pmids = [int(i) for i in record['IdList']]
 print('found %d records' % len(pmids))
 
 
 # -
 
-handle = Entrez.efetch(db="pubmed", id=",".join(['%d'%i for i in pmids]),
-                       retmax=retmax,retmode="xml")
-records=Entrez.read(handle)
+handle = Entrez.efetch(db="pubmed", id=",".join(['%d' % i for i in pmids]),
+                       retmax=retmax, retmode="xml")
+records = Entrez.read(handle)
 
-
-print('found %d records'%len(records['PubmedArticle']))
-
-
+print('found %d records' % len(records['PubmedArticle']))
 
 # load various links
 osf_df = pd.read_csv('osf_links.csv', index_col=0)
@@ -59,7 +64,7 @@ code_links
 pubs = {}
 
 for i in records['PubmedArticle']:
-    pmid=int(i['MedlineCitation']['PMID'])
+    pmid = int(i['MedlineCitation']['PMID'])
     if 'Year' in i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']:
         year = i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']['Year']
     elif 'MedlineDate' in i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']:
@@ -67,10 +72,10 @@ for i in records['PubmedArticle']:
     else:
         print('no year - skipping', pmid)
 
-    if not year in pubs:
+    if year not in pubs:
         pubs[year] = {}
     pubs[year][pmid] = {}
-    
+
     authorlist = []
     if 'AuthorList' in i['MedlineCitation']['Article']:
         for author in i['MedlineCitation']['Article']['AuthorList']:
@@ -88,7 +93,7 @@ for i in records['PubmedArticle']:
         pubs[year][pmid]['pages'] = i['MedlineCitation']['Article']['Pagination']['MedlinePgn']
 
     pubs[year][pmid]['journal'] = i['MedlineCitation']['Article']['Journal']['ISOAbbreviation']
-    # try to get PMC 
+    # try to get PMC
     for j in i['PubmedData']['ArticleIdList']:
         if j.attributes['IdType'] == 'pmc':
             pubs[year][pmid]['PMC'] = str(j)
@@ -96,11 +101,9 @@ for i in records['PubmedArticle']:
             pubs[year][pmid]['DOI'] = str(j)
     if pmid in osf_links:
         pubs[year][pmid]['OSF'] = osf_links[pmid]
-        
+
     if pmid in code_links:
         pubs[year][pmid]['code'] = code_links[pmid]
-        
-
 
 # +
 # load addtional pubs from json - TBD
@@ -124,7 +127,7 @@ latex_lines = []
 for year in years:
     latex_lines.append('\\subsection*{%s}' % year)
     for pmid in pubs[year]:
-        if len(pubs[year][pmid]['authors'].split(','))>10:
+        if len(pubs[year][pmid]['authors'].split(',')) > 10:
             authorlist = pubs[year][pmid]['authors'].split(',')[0] + ', et al.'
         else:
             authorlist = pubs[year][pmid]['authors']
@@ -139,27 +142,26 @@ for year in years:
         if 'pages' in pubs[year][pmid]:
             line += ', %s' % pubs[year][pmid]['pages']
         line += '.'
-        
+
         if 'PMC' in pubs[year][pmid]:
             line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % pubs[year][pmid]['PMC']
-            
+
         if 'OSF' in pubs[year][pmid]:
             line += ' \\href{%s}{OSF}' % pubs[year][pmid]['OSF']
-            
+
         if 'code' in pubs[year][pmid]:
             line += ' \\href{%s}{Code}' % pubs[year][pmid]['code']
 
         if 'DOI' in pubs[year][pmid]:
             line += ' DOI: %s' % pubs[year][pmid]['DOI']
-        
+
         line += ' \\vspace{2mm}'
         latex_lines.append(line)
-# -
 
 # write pubs to file
 with open('pubs.tex', 'w') as f:
     for l in latex_lines:
-        f.write(l.replace('_', '\_') + '\n\n')
+        f.write(l.replace('_', '\_') + '\n\n') # noqa
 
 
 # ### load presentations and write to latex
@@ -170,7 +172,7 @@ presentations = presentations.sort_values('year', ascending=False)
 
 with open('presentations.tex', 'w') as f:
     for i in presentations.index:
-        entry = presentations.loc[i,:]
+        entry = presentations.loc[i, :]
         title = entry.title.strip('.')
         location = entry.location.strip('.')
         term = '\\vspace{2mm}'
@@ -193,6 +195,3 @@ for y in years:
 with open('talks.tex', 'w') as f:
     for l in lines:
         f.write(l + term + '\n\n')
-# -
-
-
