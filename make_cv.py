@@ -1,5 +1,5 @@
 """
-generate a LaTeX CV using PubMed along with other resources
+generate a LaTeX CV using PubMed and ORCID along with other resources
 
 Russ Poldrack, May 2020
 """
@@ -11,6 +11,7 @@ import os
 from pprint import pprint
 import random
 import string
+import requests
 
 ## settings
 
@@ -18,31 +19,212 @@ drop_corrigenda = True
 
 # load parameters
 
-if os.path.exists('params.json'):
-    with open('params.json') as f:
-        params = json.load(f)
+def get_params(params_file='params.json'):
+    if os.path.exists(params_file):
+        with open(params_file) as f:
+            params = json.load(f)
+    else:
+        raise FileNotFoundError('Please create a json file called params.json containing the fields email (with your email address), orcid (with your ORCID id) and query (with your pubmed query)- see documentation for help')
+    assert "orcid" in params
+    assert "email" in params
+    assert "query"
+    return(params)
+
+def get_orcid_data(id):
+    resp = requests.get("http://pub.orcid.org/%s"%id,
+                    headers={'Accept':'application/orcid+json'})
+    orcid_data = resp.json()
+    return(orcid_data)
+
+
+def get_orcid_education(orcid_data):
+    education_df = pd.DataFrame(columns=['institution', 'degree', 'dept', 'city',
+                    'start_date', 'end_date'])
+    ctr = 0
+    for e in orcid_data['activities-summary']['educations']['affiliation-group']:
+        s = e['summaries'][0]['education-summary']
+        institution = s['organization']['name']
+        city = s['organization']['address']['city'] + ', ' + s['organization']['address']['region']
+        start_date = s['start-date']['year']['value']
+        end_date = s['end-date']['year']['value']
+        degree = s['role-title']
+        dept = s['department-name']
+        education_df.loc[ctr, :] = [institution, degree, dept, city, start_date, end_date]
+        ctr +=1
+
+    for e in orcid_data['activities-summary']['qualifications']['affiliation-group']:
+        s = e['summaries'][0]['qualification-summary']
+        institution = s['organization']['name']
+        city = s['organization']['address']['city'] + ', ' + s['organization']['address']['region']
+        start_date = s['start-date']['year']['value']
+        end_date = s['end-date']['year']['value']
+        degree = s['role-title']
+        dept = s['department-name']
+        education_df.loc[ctr, :] = [institution, degree, dept, city, start_date, end_date]
+        ctr += 1
+
+    education_df = education_df.sort_values('start_date')
+    return(education_df)
+
+
+def get_orcid_employment(orcid_data):
+    employment_df = pd.DataFrame(columns=['institution', 'role', 'dept', 'city',
+                    'start_date', 'end_date'])
+    ctr = 0
+    for e in orcid_data['activities-summary']['employments']['affiliation-group']:
+        s = e['summaries'][0]['employment-summary']
+        institution = s['organization']['name']
+        city = s['organization']['address']['city'] + ', ' + s['organization']['address']['region']
+        start_date = s['start-date']['year']['value']
+        if s['end-date'] is not None:
+            end_date = s['end-date']['year']['value']
+        else:
+            end_date = 'present'
+        role = s['role-title']
+        dept = s['department-name']
+        employment_df.loc[ctr, :] = [institution, role, dept, city, start_date, end_date]
+        ctr +=1
+    employment_df = employment_df.sort_values('start_date', ascending=False)
+    return(employment_df)
+
+
+def get_orcid_distinctions(orcid_data):
+    distinctions_df = pd.DataFrame(columns=['organization', 'title', 'city', 'start_date', 'end_date'])
+
+    for ctr, e in enumerate(orcid_data['activities-summary']['distinctions']['affiliation-group']):
+        s = e['summaries'][0]['distinction-summary']
+        organization = s['organization']['name']
+        start_date = s['start-date']['year']['value']
+        if s['end-date'] is not None:
+            end_date = s['end-date']['year']['value']
+        else:
+            end_date = ''
+        role = s['role-title']
+        distinctions_df.loc[ctr, :] = [organization, role, '', start_date, end_date]
+    
+    for e in orcid_data['activities-summary']['invited-positions']['affiliation-group']:
+        s = e['summaries'][0]['invited-position-summary']
+        institution = s['organization']['name']
+        city = s['organization']['address']['city']
+        if s['organization']['address']['region'] is not None:
+            city = city + ', ' + s['organization']['address']['region']
+        start_date = s['start-date']['year']['value']
+        if s['end-date'] is not None:
+            end_date = s['end-date']['year']['value']
+        else:
+            end_date = 'present'
+        role = s['role-title']
+        distinctions_df.loc[ctr, :] = [institution, role, city, start_date, end_date]
+        ctr +=1
+
+    distinctions_df = distinctions_df.sort_values('start_date', ascending=False)
+    return(distinctions_df)
+
+
+def get_orcid_memberships(orcid_data):
+    memberships_df = pd.DataFrame(columns=['organization'])
+
+    for ctr, e in enumerate(orcid_data['activities-summary']['memberships']['affiliation-group']):
+        s = e['summaries'][0]['membership-summary']
+        organization = s['organization']['name']
+        memberships_df.loc[ctr, :] = [organization]
+    memberships_df = memberships_df.sort_values('organization')
+    return(memberships_df)
+
+
+
+def get_orcid_pubs(orcid_data):
+    pubs = {}
+    for g in orcid_data['activities-summary']['works']['group']:
+        for p in g['work-summary']:
+            if not p['type'] == 'JOURNAL_ARTICLE':
+                continue
+            title=p['title']['title']['value']
+            doi=None
+            for eid in p['external-ids']['external-id']:
+                if eid['external-id-type']== 'doi':
+                    doi = eid['external-id-value']
+            if doi is not None:
+                pubs[doi]=title
+    return(pubs)
+
+
+def render_education(education_df):
+    with open('education.tex', 'w') as f:
+        for i in education_df.index:
+
+            f.write('\\textit{%s-%s}: %s (%s), %s, %s\n\n' %(
+                education_df.loc[i, 'start_date'],
+                education_df.loc[i, 'end_date'],
+                education_df.loc[i, 'degree'],
+                education_df.loc[i, 'dept'],
+                education_df.loc[i, 'institution'],
+                education_df.loc[i, 'city'],
+            ))
+
+def render_employment(employment_df):
+    with open('employment.tex', 'w') as f:
+        for i in employment_df.index:
+            if employment_df.loc[i, 'dept'] is None:
+                dept = ''
+            else:
+                dept = ' (%s)' % employment_df.loc[i, 'dept']
+
+            f.write('\\textit{%s-%s}: %s%s, %s\n\n' %(
+                employment_df.loc[i, 'start_date'],
+                employment_df.loc[i, 'end_date'],
+                employment_df.loc[i, 'role'],
+                dept,
+                employment_df.loc[i, 'institution'],
+            ))
+
+def render_distinctions(distinctions_df):
+    with open('distinctions.tex', 'w') as f:
+        for i in distinctions_df.index:
+            f.write('\\textit{%s}: %s, %s\n\n' %(
+                distinctions_df.loc[i, 'start_date'],
+                distinctions_df.loc[i, 'title'],
+                distinctions_df.loc[i, 'organization'],
+            ))
+
+def render_memberships(memberships_df):
+     with open('memberships.tex', 'w') as f:
+        memberships = ', '.join(memberships_df.organization)
+        f.write('%s\n\n' % memberships)
+   
+# read publications from PubMed
+def get_pubmed_pubs(params):
     Entrez.email = params['email']
     print(f'using {Entrez.email} for Entrez service')
     query = params['query']
     print('searching for', query)
-else:
-    raise FileNotFoundError('Please create a json file called params.json containing the fields email (with your email address) and query (with your pubmed query)- see documentation for help')
+    retmax = 1000
+    handle = Entrez.esearch(db="pubmed", retmax=retmax, term=query)
+    record = Entrez.read(handle)
+    handle.close()
+    pmids = [int(i) for i in record['IdList']]
+    print('found %d matches' % len(pmids))
 
-# read publications from PubMed
+    # load full records
+    handle = Entrez.efetch(db="pubmed", id=",".join(['%d' % i for i in pmids]),
+                        retmax=retmax, retmode="xml")
+    records = Entrez.read(handle)
+    print('found %d full records' % len(records['PubmedArticle']))
+    return(records)
 
-retmax = 1000
-handle = Entrez.esearch(db="pubmed", retmax=retmax, term=query)
-record = Entrez.read(handle)
-handle.close()
-pmids = [int(i) for i in record['IdList']]
-print('found %d matches' % len(pmids))
+#if __name__ == "__main__":
 
-# load full records
-handle = Entrez.efetch(db="pubmed", id=",".join(['%d' % i for i in pmids]),
-                       retmax=retmax, retmode="xml")
-records = Entrez.read(handle)
-print('found %d full records' % len(records['PubmedArticle']))
+params = get_params()
 
+# get orcid data
+print('reading data for ORCID id:', params['orcid'])
+orcid_data = get_orcid_data(params['orcid'])
+education_df = get_orcid_education(orcid_data)
+employment_df = get_orcid_employment(orcid_data)
+distinctions_df = get_orcid_distinctions(orcid_data)
+memberships_df = get_orcid_memberships(orcid_data)
+
+pubmed_records = get_pubmed_pubs(params)
 
 # load various links
 ## OSF repositories
@@ -259,9 +441,10 @@ if os.path.exists('presentations.csv'):
         for i in presentations.index:
             entry = presentations.loc[i, :]
             title = entry.title.strip('.')
-            location = entry.location.strip('.')
+            location = entry.location.strip(' ').strip('.')
             term = '\\vspace{2mm}'
-            line = f'{entry.authors} ({entry.year}). {title}. {location}. {term} '
+            line = '%s (%s). \\emph{%s}. %s. %s ' % (
+                entry.authors, entry.year, title, location, term)
             f.write(line + '\n\n')
 
 
