@@ -12,34 +12,39 @@ from pprint import pprint
 import random
 import string
 import requests
+from crossref.restful import Works
+import pypatent
+import scholarly
+from collections import OrderedDict
 
-## settings
+#  settings
 
 drop_corrigenda = True
 
-# load parameters
 
+# load parameters
 def get_params(params_file='params.json'):
     if os.path.exists(params_file):
         with open(params_file) as f:
             params = json.load(f)
     else:
         raise FileNotFoundError('Please create a json file called params.json containing the fields email (with your email address), orcid (with your ORCID id) and query (with your pubmed query)- see documentation for help')
-    assert "orcid" in params
-    assert "email" in params
-    assert "query"
+    required_fields = ['address', 'lastname', 'firstname', 'email', 'orcid', 'query', 'url', 'phone']
+    for field in required_fields:
+        assert field in params
     return(params)
 
+
 def get_orcid_data(id):
-    resp = requests.get("http://pub.orcid.org/%s"%id,
-                    headers={'Accept':'application/orcid+json'})
+    resp = requests.get("http://pub.orcid.org/%s" % id,
+                        headers={'Accept': 'application/orcid+json'})
     orcid_data = resp.json()
     return(orcid_data)
 
 
 def get_orcid_education(orcid_data):
     education_df = pd.DataFrame(columns=['institution', 'degree', 'dept', 'city',
-                    'start_date', 'end_date'])
+                                         'start_date', 'end_date'])
     ctr = 0
     for e in orcid_data['activities-summary']['educations']['affiliation-group']:
         s = e['summaries'][0]['education-summary']
@@ -50,7 +55,7 @@ def get_orcid_education(orcid_data):
         degree = s['role-title']
         dept = s['department-name']
         education_df.loc[ctr, :] = [institution, degree, dept, city, start_date, end_date]
-        ctr +=1
+        ctr += 1
 
     for e in orcid_data['activities-summary']['qualifications']['affiliation-group']:
         s = e['summaries'][0]['qualification-summary']
@@ -67,9 +72,31 @@ def get_orcid_education(orcid_data):
     return(education_df)
 
 
+def get_orcid_funding(orcid_data):
+    funding_df = pd.DataFrame(columns=['organization', 'id', 'title', 'role',
+                                       'start_date', 'end_date', 'url'])
+    ctr = 0
+    for e in orcid_data['activities-summary']['fundings']['group']:
+        s = e['funding-summary'][0]
+        id = s['external-ids']['external-id'][0]['external-id-value']
+        start_date = s['start-date']['year']['value']
+        if s['end-date'] is not None:
+            end_date = s['end-date']['year']['value']
+        else:
+            end_date = 'present'
+        url = s['external-ids']['external-id'][0]['external-id-url']['value']
+        funding_df.loc[ctr, :] = [s['organization']['name'], id,
+                                  s['title']['title']['value'],
+                                  '',
+                                  start_date,
+                                  end_date, url]
+        ctr += 1
+        return(funding_df)
+
+
 def get_orcid_employment(orcid_data):
     employment_df = pd.DataFrame(columns=['institution', 'role', 'dept', 'city',
-                    'start_date', 'end_date'])
+                                          'start_date', 'end_date'])
     ctr = 0
     for e in orcid_data['activities-summary']['employments']['affiliation-group']:
         s = e['summaries'][0]['employment-summary']
@@ -83,7 +110,7 @@ def get_orcid_employment(orcid_data):
         role = s['role-title']
         dept = s['department-name']
         employment_df.loc[ctr, :] = [institution, role, dept, city, start_date, end_date]
-        ctr +=1
+        ctr += 1
     employment_df = employment_df.sort_values('start_date', ascending=False)
     return(employment_df)
 
@@ -101,7 +128,7 @@ def get_orcid_distinctions(orcid_data):
             end_date = ''
         role = s['role-title']
         distinctions_df.loc[ctr, :] = [organization, role, '', start_date, end_date]
-    
+
     for e in orcid_data['activities-summary']['invited-positions']['affiliation-group']:
         s = e['summaries'][0]['invited-position-summary']
         institution = s['organization']['name']
@@ -115,7 +142,7 @@ def get_orcid_distinctions(orcid_data):
             end_date = 'present'
         role = s['role-title']
         distinctions_df.loc[ctr, :] = [institution, role, city, start_date, end_date]
-        ctr +=1
+        ctr += 1
 
     distinctions_df = distinctions_df.sort_values('start_date', ascending=False)
     return(distinctions_df)
@@ -132,70 +159,40 @@ def get_orcid_memberships(orcid_data):
     return(memberships_df)
 
 
+def get_orcid_service(orcid_data):
+    service_df = pd.DataFrame(columns=['organization'])
 
-def get_orcid_pubs(orcid_data):
-    pubs = {}
+    for ctr, e in enumerate(orcid_data['activities-summary']['services']['affiliation-group']):
+        s = e['summaries'][0]['service-summary']
+        service_df.loc[ctr, 'organization'] = s['organization']['name']
+        service_df.loc[ctr, 'start_date'] = s['start-date']['year']['value']
+        if s['end-date'] is not None:
+            service_df.loc[ctr, 'end_date'] = s['end-date']['year']['value']
+        else:
+            service_df.loc[ctr, 'end_date'] = 'present'
+        service_df.loc[ctr, 'role'] = s['role-title']
+
+    service_df = service_df.sort_values('start_date', ascending=False)
+    return(service_df)
+
+
+# get DOIs for pubs in orcid
+def get_orcid_dois(orcid_data):
+    dois = []
     for g in orcid_data['activities-summary']['works']['group']:
         for p in g['work-summary']:
-            if not p['type'] == 'JOURNAL_ARTICLE':
-                continue
-            title=p['title']['title']['value']
-            doi=None
+            doi = None
             for eid in p['external-ids']['external-id']:
-                if eid['external-id-type']== 'doi':
-                    doi = eid['external-id-value']
+                if eid['external-id-type'] == 'doi':
+                    doi = eid['external-id-value'].replace('http://dx.doi.org/', '')
             if doi is not None:
-                pubs[doi]=title
-    return(pubs)
+                dois.append(doi.lower())
+    return(list(set(dois)))
 
 
-def render_education(education_df):
-    with open('education.tex', 'w') as f:
-        for i in education_df.index:
-
-            f.write('\\textit{%s-%s}: %s (%s), %s, %s\n\n' %(
-                education_df.loc[i, 'start_date'],
-                education_df.loc[i, 'end_date'],
-                education_df.loc[i, 'degree'],
-                education_df.loc[i, 'dept'],
-                education_df.loc[i, 'institution'],
-                education_df.loc[i, 'city'],
-            ))
-
-def render_employment(employment_df):
-    with open('employment.tex', 'w') as f:
-        for i in employment_df.index:
-            if employment_df.loc[i, 'dept'] is None:
-                dept = ''
-            else:
-                dept = ' (%s)' % employment_df.loc[i, 'dept']
-
-            f.write('\\textit{%s-%s}: %s%s, %s\n\n' %(
-                employment_df.loc[i, 'start_date'],
-                employment_df.loc[i, 'end_date'],
-                employment_df.loc[i, 'role'],
-                dept,
-                employment_df.loc[i, 'institution'],
-            ))
-
-def render_distinctions(distinctions_df):
-    with open('distinctions.tex', 'w') as f:
-        for i in distinctions_df.index:
-            f.write('\\textit{%s}: %s, %s\n\n' %(
-                distinctions_df.loc[i, 'start_date'],
-                distinctions_df.loc[i, 'title'],
-                distinctions_df.loc[i, 'organization'],
-            ))
-
-def render_memberships(memberships_df):
-     with open('memberships.tex', 'w') as f:
-        memberships = ', '.join(memberships_df.organization)
-        f.write('%s\n\n' % memberships)
-   
-# read publications from PubMed
-def get_pubmed_pubs(params):
-    Entrez.email = params['email']
-    print(f'using {Entrez.email} for Entrez service')
+# get records for pubs in PubMed
+def get_pubmed_records(params):
+    print(f'using {params["email"]} for Entrez service')
     query = params['query']
     print('searching for', query)
     retmax = 1000
@@ -207,260 +204,670 @@ def get_pubmed_pubs(params):
 
     # load full records
     handle = Entrez.efetch(db="pubmed", id=",".join(['%d' % i for i in pmids]),
-                        retmax=retmax, retmode="xml")
+                           retmax=retmax, retmode="xml")
     records = Entrez.read(handle)
-    print('found %d full records' % len(records['PubmedArticle']))
+    print('found %d full pubmed records' % len(records['PubmedArticle']))
     return(records)
 
-#if __name__ == "__main__":
 
-params = get_params()
+def get_pubmed_pubs(pubmed_records):
+    pubs = {}
+    for i in pubmed_records['PubmedArticle']:
+        pmc = None
+        doi = None
+        pmid = int(i['MedlineCitation']['PMID'])
+        for j in i['PubmedData']['ArticleIdList']:
+            if j.attributes['IdType'] == 'doi':
+                doi = str(j).lower().replace('http://dx.doi.org/', '')
+            if j.attributes['IdType'] == 'pmc':
+                pmc = str(j)
 
-# get orcid data
-print('reading data for ORCID id:', params['orcid'])
-orcid_data = get_orcid_data(params['orcid'])
-education_df = get_orcid_education(orcid_data)
-employment_df = get_orcid_employment(orcid_data)
-distinctions_df = get_orcid_distinctions(orcid_data)
-memberships_df = get_orcid_memberships(orcid_data)
-
-pubmed_records = get_pubmed_pubs(params)
-
-# load various links
-## OSF repositories
-osf_links = {}
-if os.path.exists('osf_links.csv'):
-    osf_df = pd.read_csv('osf_links.csv', index_col=0)
-    for i in osf_df.index:
-        osf_links[i] = osf_df.loc[i, 'url']
-    print('OSF links:')
-    pprint(osf_links)
-else:
-    print('OSF links file (osf_links.csv) not found, skipping...')
-
-## Code links
-code_links = {}
-if os.path.exists('code_links.csv'):
-    code_df = pd.read_csv('code_links.csv', index_col=0)
-    for i in code_df.index:
-        code_links[i] = code_df.loc[i, 'url']
-    print('Code links:')
-    pprint(code_links)
-
-## Data links
-data_links = {}
-if os.path.exists('data_links.csv'):
-    data_df = pd.read_csv('data_links.csv', index_col=0)
-    for i in data_df.index:
-        data_links[i] = data_df.loc[i, 'url']
-    print('Data links:')
-    pprint(data_links)
-
-#
-## Parse pubmed records to get reference info
-
-pubs = {}
-
-for i in records['PubmedArticle']:
-    pmid = int(i['MedlineCitation']['PMID'])
-    if 'Year' in i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']:
-        year = i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']['Year']
-    elif 'MedlineDate' in i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']:
-        year = i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']['MedlineDate'].split(' ')[0]
-    else:
-        print('no year - skipping', pmid)
-
-    if year not in pubs:
-        pubs[year] = {}
-    pubs[year][pmid] = {}
-
-    authorlist = []
-    if 'AuthorList' in i['MedlineCitation']['Article']:
-        for author in i['MedlineCitation']['Article']['AuthorList']:
-            if 'LastName' in author and 'Initials' in author:
-                authorlist.append(' '.join([author['LastName'], author['Initials']]))
-        pubs[year][pmid]['authors'] = ', '.join(authorlist)
-    if 'Volume' in i['MedlineCitation']['Article']['Journal']['JournalIssue']:
-        pubs[year][pmid]['volume'] = i['MedlineCitation']['Article']['Journal']['JournalIssue']['Volume']
-    else:
-        pubs[year][pmid]['volume'] = ''
-
-    pubs[year][pmid]['title'] = i['MedlineCitation']['Article']['ArticleTitle']
-
-    if 'Pagination' in i['MedlineCitation']['Article']:
-        pubs[year][pmid]['pages'] = i['MedlineCitation']['Article']['Pagination']['MedlinePgn']
-
-    pubs[year][pmid]['journal'] = i['MedlineCitation']['Article']['Journal']['ISOAbbreviation']
-    # try to get PMC
-    for j in i['PubmedData']['ArticleIdList']:
-        if j.attributes['IdType'] == 'pmc':
-            pubs[year][pmid]['PMC'] = str(j)
-        if j.attributes['IdType'] == 'doi':
-            pubs[year][pmid]['DOI'] = str(j)
-
-    if pmid in osf_links:
-        pubs[year][pmid]['OSF'] = osf_links[pmid]
-
-    if pmid in code_links:
-        pubs[year][pmid]['code'] = code_links[pmid]
-
-    if pmid in data_links:
-        pubs[year][pmid]['data'] = data_links[pmid]
-
-
-# load addtional publications from csv
-if os.path.exists('additional_pubs.csv'):
-    addpubs = pd.read_csv('additional_pubs.csv')
-    addpubs = addpubs.fillna('')
-    for i in addpubs.index:
-        year = str(addpubs.loc[i, 'year'])
-        # make a random string to stand in for pmid
-        pmid = ''.join(random.choice(
-            string.ascii_lowercase) for i in range(8))
-        pubs[year][pmid] = {}
-        for c in addpubs.columns:
-            pubs[year][pmid][c] = addpubs.loc[i, c]
-
-# load chapters
-if os.path.exists('chapters.csv'):
-    chapters = pd.read_csv('chapters.csv')
-    chapters = chapters.fillna('')
-    for i in chapters.index:
-        year = str(chapters.loc[i, 'year'])
-        # make a random string to stand in for pmid
-        pmid = ''.join(random.choice(
-            string.ascii_lowercase) for i in range(8))
-        pubs[year][pmid] = {}
-        pubs[year][pmid] = {'isChapter': True}
-        for c in chapters.columns:
-            pubs[year][pmid][c] = chapters.loc[i, c]
-
-# load books
-if os.path.exists('books.csv'):
-    books = pd.read_csv('books.csv')
-    books = books.fillna('')
-    for i in books.index:
-        year = str(books.loc[i, 'year'])
-        # make a random string to stand in for pmid
-        pmid = ''.join(random.choice(
-            string.ascii_lowercase) for i in range(8))
-        pubs[year][pmid] = {'isBook': True}
-        for c in books.columns:
-            pubs[year][pmid][c] = books.loc[i, c]
-
-
-## convert to latex
-
-# get list of years
-years = list(pubs.keys())
-years.sort(reverse=True)
-
-latex_lines = []
-for year in years:
-    latex_lines.append('\\subsection*{%s}' % year)
-    # first get alphabetical order of PMIDs
-    pmid_df = pd.DataFrame({'author': ''}, index=list(pubs[year].keys()))
-    for pmid in pubs[year]:
-        pmid_df.loc[pmid, 'author'] = pubs[year][pmid]['authors']
-    pmid_df.sort_values('author', inplace=True)
-    pmids_sorted = list(pmid_df.index)
-
-   
-
-    # get the reference line for each
-    for pmid in pmids_sorted:
-        if pubs[year][pmid]['title'].find('Corrigend') > -1:
+        if doi is None:
             continue
-        if len(pubs[year][pmid]['authors'].split(',')) > 10:
-            authorlist = pubs[year][pmid]['authors'].split(',')[0] + ', et al.'
+
+        pubs[doi] = {'pmid': pmid, 'PMC': pmc, 'type': 'journal-article'}
+        # get some other useful stuff while we are here
+        # pubmed seems to have better info than crossref
+        pubs[doi]['journal'] = i['MedlineCitation']['Article']['Journal']['ISOAbbreviation']
+        if 'Year' in i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']:
+            pubs[doi]['year'] = int(i['MedlineCitation']['Article'][
+                'Journal']['JournalIssue']['PubDate']['Year'])
+        elif 'MedlineDate' in i['MedlineCitation']['Article']['Journal']['JournalIssue']['PubDate']:
+            pubs[doi]['year'] = int(i['MedlineCitation']['Article'][
+                'Journal']['JournalIssue']['PubDate']['MedlineDate'].split(' ')[0])
+        if 'Volume' in i['MedlineCitation']['Article']['Journal']['JournalIssue']:
+            pubs[doi]['volume'] = i['MedlineCitation']['Article']['Journal']['JournalIssue']['Volume']
+        pubs[doi]['title'] = i['MedlineCitation']['Article']['ArticleTitle']
+
+        if 'Pagination' in i['MedlineCitation']['Article']:
+            pubs[doi]['page'] = i['MedlineCitation']['Article']['Pagination']['MedlinePgn']
+        authorlist = []
+        if 'AuthorList' in i['MedlineCitation']['Article']:
+            for author in i['MedlineCitation']['Article']['AuthorList']:
+                if 'LastName' in author and 'Initials' in author:
+                    authorlist.append(' '.join([author['LastName'], author['Initials']]))
+            pubs[doi]['authors'] = ', '.join(authorlist)
+
+    return(pubs)
+
+
+def get_crossref_records(dois):
+    works = Works()
+    crossref_records = {}
+    print('searching crossref for all DOIs, this might take a few minutes...')
+    for doi in dois:
+        r = works.doi(doi)
+        if r is not None:
+            crossref_records[doi] = r
         else:
-            authorlist = pubs[year][pmid]['authors']
-        if 'isBook' in pubs[year][pmid]:  # treat books separately
-            line = authorlist +\
-                ' (%s). ' % year +\
-                ' \\textit{%s} ' % pubs[year][pmid]['title'] +\
-                pubs[year][pmid]['publisher'].strip(' ')
-            line += '.'
-        elif 'isChapter' in pubs[year][pmid]:  # treat chapters separately
-            line = authorlist +\
-                ' (%s). ' % year +\
-                pubs[year][pmid]['title'] +\
-                'In %s (Eds.),  \\textit{%s.} %s.' % (
-                    pubs[year][pmid]['editors'],
-                    pubs[year][pmid]['booktitle'],
-                    pubs[year][pmid]['publisher'].strip(' '))
+            print('missing crossref record for', doi)
+    return(crossref_records)
+
+
+def process_crossref_records(crossref_records, pubs,
+                             etal_thresh=10, exclude_preprints=True,
+                             exclude_books=True, exclude_translations=True):
+    # use DOI as dictionary keys
+    for r in crossref_records:
+        if exclude_preprints and crossref_records[r]['type'] == 'posted-content':
+            continue
+        # books seem to be goofy with crossref
+        if exclude_books and crossref_records[r]['type'] == 'book':
+            continue
+        if 'author' not in crossref_records[r]:  # can happen for errata
+            print('no author for ', r)
+            continue
+        if 'translator' in crossref_records[r]:
+            continue
+
+        if isinstance(crossref_records[r]['title'], list):
+            crossref_records[r]['title'] = crossref_records[r]['title'][0]
+        if crossref_records[r]['title'].find('Corrigend') > -1:
+            continue
+
+        if r not in pubs:
+            pubs[r] = {}
+
+        # don't replace pubmed info if it already exists
+        for field in ['title', 'volume', 'page', 'type', 'publisher']:
+            if field in crossref_records[r] and field not in pubs[r]:
+                f = crossref_records[r][field]
+                if isinstance(f, list):
+                    f = f[0]
+                pubs[r][field] = f
+
+        # get the title
+        if 'journal' not in pubs[r] and len(crossref_records[r]['container-title']) > 0:
+            pubs[r]['journal'] = crossref_records[r]['container-title'][0]
+
+        # date can show up in two different places!
+        if 'year' not in pubs[r]:
+            if 'published-print' in crossref_records[r]:
+                year = crossref_records[r]['published-print']['date-parts'][0][0]
+            elif 'journal-issue' in crossref_records[r]:
+                journal_issue = crossref_records[r]['journal-issue']
+                if 'published-print' in journal_issue:
+                    year = journal_issue['published-print']['date-parts'][0][0]
+                else:
+                    year = journal_issue['published-online']['date-parts'][0][0]
+
+            pubs[r]['year'] = int(year)
+
+        # convert author list to pubmed format
+        if 'authors' in pubs[r]:
+            authors = [i.lstrip(' ') for i in pubs[r]['authors'].split(',')]
         else:
-            line = authorlist +\
-                ' (%s). ' % year +\
-                pubs[year][pmid]['title'] +\
-                ' \\textit{%s' % pubs[year][pmid]['journal']
-            if pubs[year][pmid]['volume'] != '':
-                line += ', %s}' % pubs[year][pmid]['volume']
+            authors = []
+            for author in crossref_records[r]['author']:
+                if 'given' not in author or 'family' not in author:
+                    continue
+                given_split = author['given'].split(' ')
+                if len(given_split) > 1:
+                    initials = ''.join([i[0] for i in given_split])
+                else:
+                    initials = given_split[0][0]
+                entry = '%s %s' % (author['family'], initials)
+                authors.append(entry)
+        if len(authors) > etal_thresh:
+            pubs[r]['authors'] = '%s et al.' % authors[0]
+        else:
+            pubs[r]['authors'] = ', '.join(authors)
+
+    return(pubs)
+
+
+def get_google_scholar_record(firstname, lastname):
+    search_query = scholarly.search_author(' '.join([firstname, lastname]))
+    author = next(search_query).fill()
+    return(author)
+
+
+# get code/data/osf links
+def get_links(link_file, verbose=False):
+    links = {}
+    if os.path.exists(link_file):
+        data_df = pd.read_csv(link_file, index_col=0)
+        for i in data_df.index:
+            links[i] = data_df.loc[i, 'url']
+        if verbose:
+            print('Data links:')
+            pprint(links)
+    return(links)
+
+
+def add_additional_pubs_from_csv(pubs, pubfile='additional_pubs.csv'):
+    if os.path.exists(pubfile):
+        addpubs = pd.read_csv(pubfile)
+        addpubs = addpubs.fillna('')
+        for i in addpubs.index:
+            # make a random string to stand in for pmid
+            if 'DOI' in addpubs.columns:
+                if addpubs.loc[i, 'DOI'] == '':
+                    doi = ''.join(random.choice(
+                        string.ascii_lowercase) for i in range(8))
+                    pubs[doi] = {'badDOI': True, 'DOI': doi}
+                else:
+                    doi = addpubs.loc[i, 'DOI']
+                    pubs[doi] = {'DOI': doi}
+            for c in addpubs.columns:
+                if c == 'DOI':
+                    continue
+                entry = addpubs.loc[i, c]
+                if isinstance(entry, str):
+                    entry = entry.strip(' ')
+                pubs[doi][c] = entry
+    return(pubs)
+
+
+def add_books_from_csv(pubs, bookfile='books.csv'):
+    if os.path.exists(bookfile):
+        books = pd.read_csv(bookfile)
+        books = books.fillna('')
+        for i in books.index:
+            # make a random string to stand in for pmid
+            id = books.loc[i, 'ISBN']
+            pubs[id] = {'type': 'book'}
+            for c in books.columns:
+                pubs[id][c] = books.loc[i, c]
+    return(pubs)
+
+
+def get_teaching(teaching_file='teaching.csv'):
+    teaching_dict = OrderedDict()
+    if os.path.exists(teaching_file):
+        teaching_df = pd.read_csv(teaching_file)
+        for i in teaching_df.index:
+            coursetype = teaching_df.loc[i, 'type']
+            if coursetype not in teaching_dict:
+                teaching_dict[coursetype] = []
+            teaching_dict[coursetype].append(teaching_df.loc[i, 'name'])
+
+    return(teaching_dict)
+
+
+def get_patents(lastname, firstname):
+    results = pypatent.Search(lastname).as_list()
+    mypatents = []
+    for r in results:
+        for i in r['inventors']:
+            fn = i[0].split(' ')[0].lower()
+            ln = i[1].lower()
+            if fn == firstname.lower() and ln == lastname.lower():
+                mypatents.append(r)
+    return(mypatents)
+
+
+def get_funding_from_csv(funding_file='funding.csv'):
+    if os.path.exists(funding_file):
+        grants_df = pd.read_csv(funding_file)
+        return(grants_df)
+    else:
+        return(None)
+
+
+def drop_excluded_pubs(pubs, exclusions_file='exclusions.txt'):
+    if os.path.exists(exclusions_file):
+        e = pd.read_csv(exclusions_file)
+        for i in e.index:
+            doi = e.loc[i, 'DOI']
+            del pubs[doi]
+    return(pubs)
+
+
+def render_patents(patent_list):
+    with open('patents.tex', 'w') as f:
+        f.write('\\section*{Patents}\n\\noindent\n\n')
+        for p in patent_list:
+            authorlist = []
+            for a in p['inventors']:
+                initials = [i[0] for i in a[0].split(' ')]
+                ln = a[1]
+                authorlist.append('%s %s' % (ln, ''.join(initials)))
+            authors = ', '.join(authorlist)
+
+            f.write('%s (%s) \\textit{%s} US Patent \# \\href{%s}{%s} \\vspace{2mm}\n\n' % ( # noqa
+                authors,
+                p['patent_date'],
+                p['title'],
+                p['url'],
+                p['patent_num']
+            ))
+
+
+def render_education(education_df):
+    with open('education.tex', 'w') as f:
+        f.write('\\section*{Education and training}\n\\noindent\n\n')
+        for i in education_df.index:
+
+            f.write('\\textit{%s-%s}: %s (%s), %s, %s\n\n' % (
+                education_df.loc[i, 'start_date'],
+                education_df.loc[i, 'end_date'],
+                education_df.loc[i, 'degree'],
+                education_df.loc[i, 'dept'],
+                education_df.loc[i, 'institution'],
+                education_df.loc[i, 'city'],
+            ))
+
+
+def render_employment(employment_df):
+    with open('employment.tex', 'w') as f:
+        f.write('\\section*{Employment and professional affiliations}\n\\noindent\n\n')
+        for i in employment_df.index:
+            if employment_df.loc[i, 'dept'] is None:
+                dept = ''
             else:
-                line += '}'
-            if 'pages' in pubs[year][pmid]:
-                if len(pubs[year][pmid]['pages']) > 0:
-                    line += ', %s' % pubs[year][pmid]['pages']
-            line += '.'
+                dept = ' (%s)' % employment_df.loc[i, 'dept']
 
-        if 'PMC' in pubs[year][pmid]:
-            line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % pubs[year][pmid]['PMC']
-
-        if 'OSF' in pubs[year][pmid]:
-            line += ' \\href{%s}{OSF}' % pubs[year][pmid]['OSF']
-
-        if 'code' in pubs[year][pmid]:
-            line += ' \\href{%s}{Code}' % pubs[year][pmid]['code']
-
-        if 'data' in pubs[year][pmid]:
-            line += ' \\href{%s}{Data}' % pubs[year][pmid]['data']
-
-        if 'DOI' in pubs[year][pmid]:
-            if len(pubs[year][pmid]['DOI']) > 0:
-                line += ' \\href{http://dx.doi.org/%s}{DOI}' % pubs[year][pmid]['DOI']
-
-        line += ' \\vspace{2mm}'
-        latex_lines.append(line)
-
-# write pubs to file
-print('writing pubs to pubs.tex')
-with open('pubs.tex', 'w') as f:
-    for l in latex_lines:
-        f.write(l.replace('_', '\_') + '\n\n') # noqa
+            f.write('\\textit{%s-%s}: %s%s, %s\n\n' % (
+                employment_df.loc[i, 'start_date'],
+                employment_df.loc[i, 'end_date'],
+                employment_df.loc[i, 'role'],
+                dept,
+                employment_df.loc[i, 'institution'],
+            ))
 
 
-# ### load presentations and write to latex
-
-# +
-if os.path.exists('presentations.csv'):
-    presentations = pd.read_csv('presentations.csv', index_col=0)
-    presentations = presentations.sort_values('year', ascending=False)
-
-    print('writing presentations to presentations.tex')
-    with open('presentations.tex', 'w') as f:
-        for i in presentations.index:
-            entry = presentations.loc[i, :]
-            title = entry.title.strip('.')
-            location = entry.location.strip(' ').strip('.')
-            term = '\\vspace{2mm}'
-            line = '%s (%s). \\emph{%s}. %s. %s ' % (
-                entry.authors, entry.year, title, location, term)
-            f.write(line + '\n\n')
+def render_distinctions(distinctions_df):
+    with open('distinctions.tex', 'w') as f:
+        f.write('\\section*{Honors and Awards}\n\\noindent\n\n')
+        for i in distinctions_df.index:
+            f.write('\\textit{%s}: %s, %s\n\n' % (
+                distinctions_df.loc[i, 'start_date'],
+                distinctions_df.loc[i, 'title'],
+                distinctions_df.loc[i, 'organization'],
+            ))
 
 
-# separately print colloquium talks
-if os.path.exists('talks.csv'):
-    talks = pd.read_csv('talks.csv', index_col=0)
-    years = list(talks.year.unique())
-    years.sort()
-    years = years[::-1]
+def render_service(service_df):
+    with open('service.tex', 'w') as f:
+        f.write('\\section*{Service}\n\\noindent\n\n')
+        for i in service_df.index:
+            f.write('%s, %s, %s-%s \n\n' % (
+                service_df.loc[i, 'role'],
+                service_df.loc[i, 'organization'],
+                service_df.loc[i, 'start_date'],
+                service_df.loc[i, 'end_date'],
+            ))
 
-    term = '\\vspace{2mm}'
-    lines = []
-    for y in years:
-        talks_year = talks.query('year == %s' % y)
-        lines.append('%s: %s' % (y, ','.join(list(talks_year.place))))
-    print('writing talks to talks.tex')
-    with open('talks.tex', 'w') as f:
+
+def render_memberships(memberships_df):
+    with open('memberships.tex', 'w') as f:
+        f.write('\\section*{Professional societies}\n\\noindent\n\n')
+        memberships = ', '.join(memberships_df.organization)
+        f.write('%s\n\n' % memberships)
+
+
+def render_teaching(teaching_dict):
+    with open('teaching.tex', 'w') as f:
+        f.write('\\section*{Teaching}\n\\noindent\n\n')
+        for i in teaching_dict:
+            f.write('\\textit{%s}: %s \\vspace{2mm}\n\n' % (i, ', '.join(teaching_dict[i])))
+
+
+def render_heading(params):
+    lines = ['\\reversemarginpar \n']
+    lines.append('{\LARGE %s %s. %s}\\\\[4mm] \n' % (  # noqa
+        params['firstname'].title(),
+        params['middlename'].title()[0],
+        params['lastname'].title()))
+    lines.append('\\vspace{-1cm} \n\n')
+
+    lines.append('\\begin{multicols}{2} \n')
+    for a in params['address']:
+        lines.append(a + '\\\\\n')
+    lines.append('\\columnbreak \n\n')
+    lines.append('Phone: %s \\\\\n' % params['phone'])
+    lines.append('email: %s \\\\\n' % params['email'])
+    lines.append('url: \\href{%s}{%s} \\\\\n' % (
+        params['url'].replace('http://', ''), params['url']))
+    if 'github' in params:
+        lines.append('url: \\href{%s}{%s} \\\\\n' % (
+            params['github'], params['github'].replace('http://', '')))
+    if 'twitter' in params:
+        lines.append('Twitter: %s \\\\\n' % params['twitter'])
+    lines.append('ORCID: \\href{https://orcid.org/%s}{%s} \\\\\n' % (
+        params['orcid'], params['orcid']))
+    lines.append('\end{multicols}\n\n')  # noqa
+    with open('header.tex', 'w') as f:
         for l in lines:
-            f.write(l + term + '\n\n')
+            f.write(l)
+
+
+def render_editorial(editorial_file='editorial.csv'):
+    if os.path.exists(editorial_file):
+        editorial_df = pd.read_csv(editorial_file)
+    else:
+        return
+
+    editorial_df = editorial_df.fillna('')
+    editorial_dict = OrderedDict()
+    for i in editorial_df.index:
+        role = editorial_df.loc[i, 'role']
+        if role not in editorial_dict:
+            editorial_dict[role] = []
+        if editorial_df.loc[i, 'dates'] != '':
+            date_string = ' (%s)' % editorial_df.loc[i, 'dates']
+        else:
+            date_string = ''
+        editorial_dict[role].append(editorial_df.loc[i, 'journal'].strip(' ') + date_string)
+
+    with open('editorial.tex', 'w') as f:
+        f.write('\\section*{Editorial Duties and Reviewing} \n\\noindent \n\n')
+        for i in editorial_dict:
+            f.write('\\textit{%s}: %s \n\n' % (i.strip(' '),
+                    ', '.join(editorial_dict[i])))
+
+
+def make_funding_line(funding_df, i, abbreviate=True):
+    if funding_df.loc[i, 'organization'].find('National') == 0 and abbreviate:
+        # abbreviate
+        org_split = [x[0] for x in funding_df.loc[
+            i, 'organization'].split(' ') if x not in ['of', 'for', 'and', 'on']]
+        org = ''.join(org_split)
+    else:
+        org = funding_df.loc[i, 'organization']
+    if funding_df.loc[i, 'id'] == '':
+        idtext = ''
+    else:
+        if funding_df.loc[i, 'url'] != '':
+            idtext = ' (\\href{%s}{%s})' % (
+                funding_df.loc[i, 'url'],
+                funding_df.loc[i, 'id'])
+        else:
+            idtext = ' (%s)' % funding_df.loc[i, 'id']
+    line = '%s, %s%s, \\textit{%s}, %s-%s' % (
+        funding_df.loc[i, 'role'],
+        org,
+        idtext,
+        funding_df.loc[i, 'title'].title().strip(' '),
+        funding_df.loc[i, 'start_date'],
+        funding_df.loc[i, 'end_date']
+    )
+    return(line)
+
+
+def render_funding(funding_df, abbreviate=True):
+    with open('funding.tex', 'w') as f:
+        f.write('\\section*{Research funding}\n\\noindent\n\n')
+        funding_df = funding_df.fillna('')
+        # first print active grants
+        f.write('\\subsection*{Active:}\n\n')
+
+        # first print PI
+        active_pi_funding = funding_df.query('active == True and role == "Principal Investigator"')
+        for i in active_pi_funding.index:
+            line = make_funding_line(active_pi_funding, i, abbreviate)
+            f.write('%s \\vspace{2mm}\n\n' % line)
+
+        # first print PI
+        active_coi_funding = funding_df.query('active == True and role != "Principal Investigator"')
+        for i in active_coi_funding.index:
+            line = make_funding_line(active_coi_funding, i, abbreviate)
+            f.write('%s \\vspace{2mm}\n\n' % line)
+
+        # then print completed grants
+        completed_funding = funding_df.query('active == False')
+        f.write('\\subsection*{Completed:}\n\n')
+        for i in completed_funding.index:
+            line = make_funding_line(completed_funding, i, abbreviate)
+            f.write('%s \\vspace{2mm}\n\n' % line)
+
+
+def get_pubs_by_year(pubs, year):
+    year_pubs = {}
+    for p in pubs:
+        if pubs[p]['year'] == year:
+            year_pubs[p] = pubs[p]
+    return(year_pubs)
+
+
+def make_article_reference(pub):
+    line = pub['authors'] +\
+        ' (%s). ' % pub['year'] +\
+        pub['title'] +\
+        ' \\textit{%s' % pub['journal']
+    if 'volume' in pub:
+        line += ', %s}' % pub['volume']
+    else:
+        line += '}'
+    if 'page' in pub:
+        if len(pub['page']) > 0:
+            line += ', %s' % pub['page']
+    line += '.'
+    return(line)
+
+
+def make_chapter_reference(pub):
+    page_string = ''
+    if 'page' in pub:
+        if len(pub['page']) > 0:
+            page_string = '(p. %s). ' % pub['page']
+    line = pub['authors'] +\
+        ' (%s). ' % pub['year'] +\
+        pub['title'] +\
+        '. In \\textit{%s.} %s%s.' % (
+            pub['journal'],
+            page_string,
+            pub['publisher'].strip(' '))
+    return(line)
+
+
+def make_book_reference(pub):
+    line = pub['authors'] +\
+        ' (%s). ' % pub['year'] +\
+        ' \\textit{%s}. ' % pub['title'].strip(' ').strip('.') + \
+        pub['publisher'].strip(' ')
+    line += '.'
+    return(line)
+
+
+def render_pubs(pubs, gscholar):
+    # convert to latex
+
+    # get list of years
+    years = list(set([pubs[i]['year'] for i in pubs]))
+    years.sort(reverse=True)
+
+    latex_lines = ['\\section*{Publications (Google Scholar H-index = %d)}' % gscholar.hindex]
+
+    for year in years:
+        latex_lines.append('\\subsection*{%s}' % year)
+        year_pubs = get_pubs_by_year(pubs, year)
+        # first get alphabetical order of PMIDs
+        pmid_df = pd.DataFrame({'author': ''}, index=list(year_pubs.keys()))
+        for pmid in year_pubs:
+            if 'authors' in year_pubs[pmid]:
+                pmid_df.loc[pmid, 'author'] = year_pubs[pmid]['authors']
+            else:
+                print('missing author:', pmid)
+        pmid_df.sort_values('author', inplace=True)
+        pmids_sorted = list(pmid_df.index)
+
+        # get the reference line for each
+        # NOTE: "pmid" here is a misnomer it's actually the DOI
+        for pmid in pmids_sorted:
+            for field in pubs[pmid]:
+                if hasattr(pubs[pmid][field], 'replace'):
+                    pubs[pmid][field] = pubs[pmid][field].replace(' &', ' \&')  # noqa
+            pubs[pmid]['DOI'] = pmid
+
+            line = None
+            if pubs[pmid]['type'] in ['book', 'monograph']:
+                line = make_book_reference(pubs[pmid])
+            elif pubs[pmid]['type'] == 'book-chapter':
+                line = make_chapter_reference(pubs[pmid])
+            elif pubs[pmid]['type'] in ['proceedings-article', 'journal-article']:
+                line = make_article_reference(pubs[pmid])
+            if line is None:
+                continue
+
+            if 'PMC' in pubs[pmid]:
+                if pubs[pmid]['PMC'] is not None:
+                    line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % pubs[pmid]['PMC']
+
+            if 'OSF' in pubs[pmid]:
+                line += ' \\href{%s}{OSF}' % pubs[pmid]['OSF']
+
+            if 'code' in pubs[pmid]:
+                line += ' \\href{%s}{Code}' % pubs[pmid]['code']
+
+            if 'data' in pubs[pmid]:
+                line += ' \\href{%s}{Data}' % pubs[pmid]['data']
+
+            # TBD: need to filter out non-DOIs
+            if pubs[pmid]['type'] not in ['book', 'monograph'] and 'badDOI' not in pubs[pmid]:
+                line += ' \\href{http://dx.doi.org/%s}{DOI}' % pubs[pmid]['DOI']
+
+            line += ' \\vspace{2mm}'
+            latex_lines.append(line)
+
+    return(latex_lines)
+
+
+def write_pubs(latex_lines):
+    print('writing pubs to pubs.tex')
+    with open('pubs.tex', 'w') as f:
+        for l in latex_lines:
+            f.write(l.replace('_', '\_') + '\n\n') # noqa
+
+
+def write_presentations(presentations_file='conference.csv'):
+    if os.path.exists(presentations_file):
+        presentations = pd.read_csv(presentations_file, index_col=0)
+        presentations = presentations.sort_values('year', ascending=False)
+
+        print('writing presentations to presentations.tex')
+        with open('presentations.tex', 'w') as f:
+            f.write('\\section*{Conference Presentations}\n\\noindent\n\n')
+            for i in presentations.index:
+                entry = presentations.loc[i, :]
+                title = entry.title.strip('.')
+                location = entry.location.strip(' ').strip('.')
+                term = '\\vspace{2mm}'
+                line = '%s (%s). \\emph{%s}. %s. %s ' % (
+                    entry.authors, entry.year, title, location, term)
+                f.write(line + '\n\n')
+
+
+def write_talks(talks_file='talks.csv'):
+    if os.path.exists(talks_file):
+        talks = pd.read_csv(talks_file, index_col=0)
+        years = list(talks.year.unique())
+        years.sort()
+        years = years[::-1]
+
+        term = '\\vspace{2mm}'
+        lines = []
+        for y in years:
+            talks_year = talks.query('year == %s' % y)
+            lines.append('%s: %s' % (y, ','.join(list(talks_year.place))))
+        print('writing talks to talks.tex')
+        with open('talks.tex', 'w') as f:
+            f.write('\\section*{Invited addresses and colloquia (* - talks given virtually)}\n\\noindent\n\n')
+            for l in lines:
+                f.write(l + term + '\n\n')
+
+
+def get_doi_from_pmid(pmid, pubs):
+    # utility function
+    for p in pubs:
+        if pubs[p]['pmid'] == pmid:
+            print('%s: %s' % (pubs[p]['pmid'], p))
+
+
+if __name__ == "__main__":
+
+    params = get_params()
+    Entrez.email = params['email']
+
+    # get orcid data
+    print('reading data for ORCID id:', params['orcid'])
+    orcid_data = get_orcid_data(params['orcid'])
+
+    education_df = get_orcid_education(orcid_data)
+    render_education(education_df)
+
+    employment_df = get_orcid_employment(orcid_data)
+    render_employment(employment_df)
+
+    distinctions_df = get_orcid_distinctions(orcid_data)
+    render_distinctions(distinctions_df)
+
+    memberships_df = get_orcid_memberships(orcid_data)
+    render_memberships(memberships_df)
+
+    service_df = get_orcid_service(orcid_data)
+    render_service(service_df)
+
+    funding_df = get_funding_from_csv()
+    render_funding(funding_df)
+
+    teaching_dict = get_teaching()
+    render_teaching(teaching_dict)
+
+    render_editorial()
+
+    render_heading(params)
+
+    patent_list = get_patents(params['lastname'], params['firstname'])
+    if len(patent_list) > 0:
+        render_patents(patent_list)
+
+    gscholar = get_google_scholar_record(params['firstname'], params['lastname'])
+    download_pubs = True  # use for testing
+
+    pubmed_records = get_pubmed_records(params)
+    pubmed_pubs = get_pubmed_pubs(pubmed_records)
+    orcid_dois = get_orcid_dois(orcid_data)
+
+    all_dois = list(set(orcid_dois + list(pubmed_pubs.keys())))
+    print('found %d total records across Pubmed and ORCID' % len(all_dois))
+
+    if download_pubs:
+        crossref_records = get_crossref_records(all_dois)
+
+    # use pubmed info if it exists
+    pubs = process_crossref_records(crossref_records, pubmed_pubs)
+
+    # drop excluded pubs
+    pubs = drop_excluded_pubs(pubs)
+
+    # load missing pubs from file
+    pubs = add_additional_pubs_from_csv(pubs)
+
+    # get additional links and add to pubs
+    links = {}
+    for link in ['data', 'code', 'osf']:
+        links[link] = get_links(f'{link}_links.csv')
+
+        for l in links[link]:
+            pubs[l][link] = links[link][l]
+
+    # load additional pubs/books
+    pubs = add_books_from_csv(pubs, 'books.csv')
+    pubs = add_additional_pubs_from_csv(pubs, 'chapters.csv')
+
+    latex_lines = render_pubs(pubs, gscholar)
+    write_pubs(latex_lines)
+    write_presentations()
+    write_talks()
