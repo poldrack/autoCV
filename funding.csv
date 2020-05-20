@@ -1,0 +1,38 @@
+organization,id,title,role,start_date,end_date,active,url
+National Institute of Mental Health,R01MH096906,LARGE-SCALE IMAGE-BASED META-ANALYSIS OF FUNCTIONAL MRI DATA,"Subcontract PI (T. Yarkoni, PI)",2012,2023,TRUE,https://projectreporter.nih.gov/project_info_description.cfm?aid=9881347
+National Institute of Mental Health,R01MH109682,NEUROSCOUT: A CLOUD-BASED PLATFORM FOR FLEXIBLE RE-ANALYSIS OF NATURALISTIC FMRI DATASETS,"Subcontract PI (T. Yarkoni, PI)",2016,2021,TRUE,https://projectreporter.nih.gov/project_info_description.cfm?aid=9742532
+National Institute of Mental Health,R24MH120037,BRAIN Initiative Resource: Development Of A Human Neuroelectromagnetic Data Archive And Tools Resource (NEMAR),"Subcontract PI (S. Makeig, PI)",2019,2024,TRUE,http://projectreporter.nih.gov/project_info_description.cfm?aid=9795341
+National Science Foundation,1760950,Breaking down barriers for reproducible neuroimaging data analyses,Principal Investigator,2018,2021,TRUE,http://www.nsf.gov/awardsearch/showAward?AWD_ID=1760950&HistoricalAwards=false
+National Institute on Drug Abuse,UH3DA041713,Applying novel technologies and methods to inform the ontology of self-regulation,Principal Investigator,2018,2020,TRUE,http://projectreporter.nih.gov/project_info_description.cfm?aid=9780476
+National Institute of Mental Health,R24MH117179,OpenNeuro: An open archive for analysis and sharing of BRAIN Initiative data,Principal Investigator,2018,2023,TRUE,http://projectreporter.nih.gov/project_info_description.cfm?aid=9770947
+National Institute of Mental Health,R01MH117772,Characterizing cognitive control networks using a precision neuroscience approach,Principal Investigator,2018,2023,TRUE,http://projectreporter.nih.gov/project_info_description.cfm?aid=9906911
+National Institute of Neurological Disorders and Stroke,U01NS103780,Causal mapping of emotion networks with concurrent electrical stimulation and fMRI,"Subcontract Pi (R Adolphs, PI)",2017,2020,TRUE,http://projectreporter.nih.gov/project_info_description.cfm?aid=9830084
+National Institute of Mental Health,R24MH114705,BIDS-Derivatives: A data standard for derived data and models in the BRAIN Initiative,Principal Investigator,2017,2020,FALSE,http://projectreporter.nih.gov/project_info_description.cfm?aid=9566304
+National Institute of Mental Health,U01MH109985,Mapping connectomes for disordered emotional states,"Co-I (L. Williams, PI)",2017,2021,TRUE,https://projectreporter.nih.gov/project_info_description.cfm?aid=9925811
+National Science Foundation,1649658,Computational Infrastructure for Brain Research: EAGER: A Computationally Enabled Knowledge Infrastructure for Cognitive Neuroscience,Principal Investigator,2017,2020,FALSE,http://www.nsf.gov/awardsearch/showAward?AWD_ID=1649658&HistoricalAwards=false
+National Institute of Biomedical Imaging and Bioengineering,R01EB020740,NIPYPE: DATAFLOWS FOR REPRODUCIBLE BIOMEDICAL RESEARCH,"Subcontract PI (S. Ghosh, PI)",2016,2020,TRUE,https://projectreporter.nih.gov/project_info_description.cfm?aid=9603723
+National Institute on Drug Abuse,UH2DA041713,Applying novel technologies and methods to inform the ontology of self-regulation,"Subcontract PI (L. Marsch, PI)",2015,2018,TRUE,http://projectreporter.nih.gov/project_info_description.cfm?aid=9310428
+National Institute of Mental Health,R01MH106324,Gene Networks Influencing Psychotic Dysconnectivity in African Americans,"Subcontract PI (D.Glahn, PI)",2014,2019,TRUE,http://projectreporter.nih.gov/project_info_description.cfm?aid=9634110
+National Institute of Diabetes and Digestive and Kidney Diseases,R21DK098719,"Sugar Sweetened Beverages: Impact on Reward, Satiety, and Metabolism in Children","Co-I (J. Davis, PI)",2014,2017,FALSE,http://projectreporter.nih.gov/project_info_description.cfm?aid=8829825
+National Institute on Drug Abuse,R21DA034316,The development of neural responses to punishment in adolescence,Principal Investigator,2013,2017,FALSE,http://projectreporter.nih.gov/project_info_description.cfm?aid=8662735
+National Institute on Aging,R01AG041653,Overcoming the persistence of first-learned habits to maintain behavioral change,Principal Investigator,2011,2017,FALSE,http://projectreporter.nih.gov/project_info_description.cfm?aid=8968152
+National Science Foundation,1131441,An open data repository for cognitive neuroscience: The OpenfMRI Project,Principal Investigator,2011,2014,FALSE,http://grants.uberresearch.com/100000001/1131441/CRCNS-Data-Sharing-An-open-data-repository-for-cognitive-neuroscience-The-OpenfMRI-Project
+National Center for Advancing Translational Sciences,G20RR030871,Enhancing an Imaging Core at the University of Texas at Austin,Principal Investigator,2010,2013,FALSE,http://projectreporter.nih.gov/project_info_description.cfm?aid=7934944
+James S. McDonnell Foundation,2009003,Accessing Brain Interactivity II,"Co-I (S. Hanson, PI)",2008,2011,FALSE,https://www.jsmf.org/grants/2009003/
+National Institute of Mental Health,R01MH082795,The Cognitive Atlas: Developing an Interdisciplinary Knowledge Base Through Socia,Principal Investigator,2008,2014,FALSE,http://projectreporter.nih.gov/project_info_description.cfm?aid=8228112
+National Science Foundation,223843,The Cognitive Neuroscience of Category Learning,Principal Investigator,2003,2007,FALSE,http://grants.uberresearch.com/100000001/0223843/COLLABORATIVE-RESEARCH-The-Cognitive-Neuroscience-of-Category-Learning
+James S. McDonnell Foundation,2005013,"Habit, automaticity, and cognitive control",Principal Investigator,2004,2009,FALSE,https://www.jsmf.org/grants/2005013/
+National Science Foundation,433693,The Neural Basis of Risky Decision Making,Co-PI,2004,2008,FALSE,http://grants.uberresearch.com/100000001/0433693/The-Neural-Basis-of-Risky-Decision-Making
+National Institute of Neurological Disorders and Stroke,R21NS043333,Cholinergic Enhancement of Human Cortical Plasticity,Principal Investigator,2002,2004,FALSE,http://projectreporter.nih.gov/project_info_description.cfm?aid=6623403
+National Science Foundation,121950,Enhancing Human Cortical Plasticity: Visual Psychophysics and fMRI,Principal Investigator,2001,2002,FALSE,http://grants.uberresearch.com/100000001/0121950/Enhancing-Human-Cortical-Plasticity-Visual-Psychophysics-and-fMRI
+National Institute of Mental Health,F31MH010433,RELATIONAL REPRESENTATION IN MEMORY AND AMNESIA,Fellow,1994,1994,FALSE,http://projectreporter.nih.gov/project_info_description.cfm?aid=2241597
+Laura and John Arnold Foundation,,Stanford Center for Reproducible Neuroscience,Principal Investigator,2015,2018,FALSE,
+European Community FP7,,The Neurobiology of Decision-Making in Eating-Innovative Tools (NUDGE- IT),"Collaborator (G. Leng, PI)",2014,2018,FALSE,
+Stanford Cyber Initiative,,Behavioral metrics for cyber authentication ,Co-PI,2015,2017,FALSE,
+Office of Naval Research,,Acquisition of an MRI-compatible EEG system ,PI,2013,2014,FALSE,
+Office of Naval Research,,Predicting Individual Differences Using Resting-State fMRI and Network Analysis ,PI,2010,2014,FALSE,
+NIH Roadmap,PL1MH083271,Consortium for Neuropsychiatric Phenomics ,Co-I,2007,2012,FALSE,https://projectreporter.nih.gov/project_info_description.cfm?aid=7650594
+National Institute of Mental Health,P50MH077248,CIDAR: TRANSLATIONAL RESEARCH TO ENHANCE COGNITIVE CONTROL (TRECC),Co-I,2006,2011,FALSE,https://projectreporter.nih.gov/project_info_description.cfm?aid=7480935
+Janssen Pharmaceuticals,,Cholinergic enhancement of perceptual learning ,PI,2002,2003,FALSE,
+Alafi Family Foundation,,Multimodal imaging of reading development and dyslexia ,PI,2000,2002,FALSE,
+McDonnell-Pew Program for Cognitive Neuroscience,,The Neural Basis of Skill Learning using fMRI ,Fellow,1996,1999,FALSE,

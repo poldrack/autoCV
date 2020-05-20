@@ -1,14 +1,12 @@
-﻿year,authors,title,booktitle,pages,editors,publisher,DOI
-2018,"White C, Poldrack RA ",Methods for fMRI analysis.,"The Stevens’ Handbook of Experimental Psychology and Cognitive Neuroscience, Fourth Edition (Volume 5)",,EJ Wagenmakers,Wiley,10.1002/9781119170174.epcn515
-2017,Poldrack RA,Developing a reproducible workfow for large-scale phenotyping.,The Practice of Reproducible Research: Case Studies and Lessons from the Data-Intensive Sciences,,"J Kitzes, D Turek, F Deniz ","Oakland, CA: University of California Press ",
-2013,"Fox CR, Poldrack RA ",Prospect theory and the brain.,Neuroeconomics: Decision Making and the Brain (2nd Edition),,P Glimcher et al. ,Elsevier,
-2010,Poldrack RA,Subtraction and beyond: The logic of experimental designs for neuroimaging.,Foundational Issues in Human Brain Mapping,147-160,"SJ Hanson, M Bunzl","Cambridge, MA: MIT Press",
-2010,"Poldrack RA, Mumford JA",On the proper role of non-independent ROI analysis: A commentary on Vul and Kanwisher.,Foundational Issues in Human Brain Mapping,93-96,"SJ Hanson, M Bunzl","Cambridge, MA: MIT Press",
-2010,"Poldrack RA, Carr V, Foerde K",Flexibility and generalization in memory systems.,Generalization of Knowledge: Multidisciplinary perspectives ,53-70,"M Banich, D Caccamise ","New York, NY: Psychology Press. ",
-2009,"Aron AR, Wise SP, Poldrack RA",Role of the basal ganglia in cognition.,T he New Encyclopedia of Neuroscience (Volume 2),1069-1077,LR Squire,"Oxford, UK: Academic Press",
-2009,"Bilder RM, Poldrack RA, Parker DS, Reise SP, Jentsch JD, Cannon T, London E, Sabb FW, Foland L, Rizk-Jackson A, Kalar D, Brown N, Carstensen A, Freimer N ",Cognitive phenomics.,Handbook of Neuropsychology of Mental Disorders ,,"S Wood, N Allen, C Pantelis ",Cambridge: Cambridge University Press ,
-2009,"Foerde K, Poldrack RA",Procedural learning in humans.,The New Encyclopedia of Neuroscience,1083-1091,LR Squire,"Oxford, UK: Academic Press",
-2009,"Ghahremani DG, Poldrack RA",Neuroimaging and interactive memory systems.,Neuroimaging in human memory ,,F Roesler,Oxford: Oxford University Press ,
-2008,"Fox CR, Poldrack RA ",Prospect theory and the brain.,Handbook of Neuroeconomics ,,"P Glimcher, E Fehr, C Camerer, RA Poldrack (Eds.)",San Diego: Academic Press ,
-2006,"Poldrack RA, Willingham DB ",Functional neuroimaging of skill learning.,"Handbook of Neuroimaging of Cognition, 2nd Edition ",113-148,"R Cabeza, A Kingstone","Cambridge, MA: MIT Press",
-1999,"Demb JB, Poldrack RA, Gabrieli JDE",Functional neuroimaging of word processing in normal and dyslexic readers.,Converging Methods for Understanding Reading and Dyslexia ,243-304,"R Klein, P. McMullen","Cambridge, MA: MIT Press",
+﻿year,authors,title,journal,page,editors,publisher,DOI,type
+2018,"White C, Poldrack RA ",Methods for fMRI analysis.,"The Stevens’ Handbook of Experimental Psychology and Cognitive Neuroscience, Fourth Edition (Volume 5)",,EJ Wagenmakers,Wiley,10.1002/9781119170174.epcn515,book-chapter
+2017,Poldrack RA,Developing a reproducible workfow for large-scale phenotyping.,The Practice of Reproducible Research: Case Studies and Lessons from the Data-Intensive Sciences,,"J Kitzes, D Turek, F Deniz ","Oakland, CA: University of California Press ",,book-chapter
+2013,"Fox CR, Poldrack RA ",Prospect theory and the brain.,Neuroeconomics: Decision Making and the Brain (2nd Edition),,P Glimcher et al. ,Elsevier,,book-chapter
+2010,Poldrack RA,Subtraction and beyond: The logic of experimental designs for neuroimaging.,Foundational Issues in Human Brain Mapping,147-160,"SJ Hanson, M Bunzl","Cambridge, MA: MIT Press",,book-chapter
+2010,"Poldrack RA, Mumford JA",On the proper role of non-independent ROI analysis: A commentary on Vul and Kanwisher.,Foundational Issues in Human Brain Mapping,93-96,"SJ Hanson, M Bunzl","Cambridge, MA: MIT Press",,book-chapter
+2010,"Poldrack RA, Carr V, Foerde K",Flexibility and generalization in memory systems.,Generalization of Knowledge: Multidisciplinary perspectives ,53-70,"M Banich, D Caccamise ","New York, NY: Psychology Press. ",,book-chapter
+2009,"Aron AR, Wise SP, Poldrack RA",Role of the basal ganglia in cognition.,T he New Encyclopedia of Neuroscience (Volume 2),1069-1077,LR Squire,"Oxford, UK: Academic Press",,book-chapter
+2009,"Bilder RM, Poldrack RA, Parker DS, Reise SP, Jentsch JD, Cannon T, London E, Sabb FW, Foland L, Rizk-Jackson A, Kalar D, Brown N, Carstensen A, Freimer N ",Cognitive phenomics.,Handbook of Neuropsychology of Mental Disorders ,,"S Wood, N Allen, C Pantelis ",Cambridge: Cambridge University Press ,,book-chapter
+2009,"Foerde K, Poldrack RA",Procedural learning in humans.,The New Encyclopedia of Neuroscience,1083-1091,LR Squire,"Oxford, UK: Academic Press",,book-chapter
+2006,"Poldrack RA, Willingham DB ",Functional neuroimaging of skill learning.,"Handbook of Neuroimaging of Cognition, 2nd Edition ",113-148,"R Cabeza, A Kingstone","Cambridge, MA: MIT Press",,book-chapter
+1999,"Demb JB, Poldrack RA, Gabrieli JDE",Functional neuroimaging of word processing in normal and dyslexic readers.,Converging Methods for Understanding Reading and Dyslexia ,243-304,"R Klein, P. McMullen","Cambridge, MA: MIT Press",,book-chapter
