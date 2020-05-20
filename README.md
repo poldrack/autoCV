@@ -18,7 +18,7 @@ Using it requires that the user first enter some relevant information into their
 
 In addition, it requires generating several CSV files containing other information that is not well organized or available within ORCID:
 
-* **[conference.csv](./conference.csv)**: Conference presentations
+* **[conference.csv](conference.csv)**: Conference presentations
 * **talks.csv**: Colloquium and other talks
 * **funding.csv**: Grants and other funding
 * **editorial.csv**: Editorial duties and reviewing
