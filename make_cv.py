@@ -758,14 +758,10 @@ def render_pubs(pubs, gscholar):
                 if pubs[pmid]['PMC'] is not None:
                     line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % pubs[pmid]['PMC']
 
-            if 'OSF' in pubs[pmid]:
-                line += ' \\href{%s}{OSF}' % pubs[pmid]['OSF']
-
-            if 'code' in pubs[pmid]:
-                line += ' \\href{%s}{Code}' % pubs[pmid]['code']
-
-            if 'data' in pubs[pmid]:
-                line += ' \\href{%s}{Data}' % pubs[pmid]['data']
+            if 'links' in pubs[pmid]:
+                for linktype in pubs[pmid]['links']:
+                    line += ' \\href{%s}{%s}' % (pubs[pmid]['links'][linktype],
+                                                    linktype)
 
             # TBD: need to filter out non-DOIs
             if pubs[pmid]['type'] not in ['book', 'monograph'] and 'DOI' in pubs[pmid]:
@@ -893,7 +889,9 @@ if __name__ == "__main__":
 
     for linktype in links:
         for id in links[linktype]:
-            pubs[id][linktype] = links[linktype][id]
+            if 'links' not in pubs[id]:
+                pubs[id]['links'] = {}
+            pubs[id]['links'][linktype] = links[linktype][id]
 
     latex_lines = render_pubs(pubs, gscholar)
     write_pubs(latex_lines)
