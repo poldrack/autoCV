@@ -5,6 +5,7 @@ Russ Poldrack, May 2020
 """
 
 import pandas as pd
+import numpy as np
 from Bio import Entrez
 import json
 import os
@@ -332,12 +333,12 @@ def process_crossref_records(crossref_records, pubs,
             pubs[r]['authors'] = '%s et al.' % authors[0]
         else:
             pubs[r]['authors'] = ', '.join(authors)
-
+        pubs[r]['idType'] = 'DOI'
     return(pubs)
 
 
 def get_google_scholar_record(firstname, lastname):
-    search_query = scholarly.search_author(' '.join([firstname, lastname]))
+    search_query = scholarly.scholarly.search_author(' '.join([firstname, lastname]))
     author = next(search_query).fill()
     return(author)
 
@@ -346,11 +347,15 @@ def get_google_scholar_record(firstname, lastname):
 def get_links(link_file, verbose=False):
     links = {}
     if os.path.exists(link_file):
-        data_df = pd.read_csv(link_file, index_col=0)
+        data_df = pd.read_csv(link_file)
         for i in data_df.index:
-            links[i] = data_df.loc[i, 'url']
+            linktype = data_df.loc[i, 'type']
+            id = data_df.loc[i, 'DOI']
+            if linktype not in links:
+                links[linktype] = {}
+            links[linktype][id] = data_df.loc[i, 'url']
         if verbose:
-            print('Data links:')
+            print('Links:')
             pprint(links)
     return(links)
 
@@ -359,23 +364,49 @@ def add_additional_pubs_from_csv(pubs, pubfile='additional_pubs.csv'):
     if os.path.exists(pubfile):
         addpubs = pd.read_csv(pubfile)
         addpubs = addpubs.fillna('')
+        # resolve duplicate ISBNs (e.g. multiple chapters in a book)
+        if 'ISBN' in addpubs.columns:
+            isbn_loc = np.where(addpubs.columns == 'ISBN')[0][0]
+            addpubs.loc[:, 'ISBN'] = [i.strip(' ') for i in addpubs.ISBN]
+            for i in range(1, addpubs.shape[0]):
+                if addpubs.iloc[i, isbn_loc] == '':
+                    continue
+                if addpubs.iloc[i, isbn_loc] in addpubs.iloc[:(i - 1), isbn_loc].tolist():
+                    print('found match')
+                    addpubs.iloc[i, isbn_loc] = addpubs.iloc[i, isbn_loc] + '-' + ''.join(
+                        random.choice(string.ascii_lowercase) for i in range(3))
         for i in addpubs.index:
             # make a random string to stand in for pmid
-            if 'DOI' in addpubs.columns:
-                if addpubs.loc[i, 'DOI'] == '':
-                    doi = ''.join(random.choice(
-                        string.ascii_lowercase) for i in range(8))
-                    pubs[doi] = {'badDOI': True, 'DOI': doi}
-                else:
-                    doi = addpubs.loc[i, 'DOI']
-                    pubs[doi] = {'DOI': doi}
+            if addpubs.loc[i, 'DOI'] != '':
+                id = addpubs.loc[i, 'DOI']
+                idType = 'DOI'
+            elif addpubs.loc[i, 'ISBN'] != '':
+                id = addpubs.loc[i, 'ISBN']
+                idType = 'ISBN'
+            else:
+                id = ''.join(random.choice(
+                    string.ascii_lowercase) for i in range(8))
+                idType = 'randomID'
+            if id in pubs and pubs[id]['title'] == addpubs.loc[i, 'title']:
+                print('found duplicate pub - skipping:', id)
+                continue
+            elif id in pubs:
+                print('found duplicate id - modifying:', id)
+                print(pubs[id])
+                print('')
+                id += '-' + ''.join(random.choice(
+                    string.ascii_lowercase) for i in range(8))
+            else:
+                print('found unique id:', id)
+                print('')
+            pubs[id] = {idType: id}
             for c in addpubs.columns:
-                if c == 'DOI':
+                if c in ['DOI', 'ISBN']:
                     continue
                 entry = addpubs.loc[i, c]
                 if isinstance(entry, str):
                     entry = entry.strip(' ')
-                pubs[doi][c] = entry
+                pubs[id][c] = entry
     return(pubs)
 
 
@@ -430,7 +461,9 @@ def drop_excluded_pubs(pubs, exclusions_file='exclusions.txt'):
         e = pd.read_csv(exclusions_file)
         for i in e.index:
             doi = e.loc[i, 'DOI']
-            del pubs[doi]
+            if doi in pubs:
+                print('dropping excluded doi:', doi)
+                del pubs[doi]
     return(pubs)
 
 
@@ -735,7 +768,7 @@ def render_pubs(pubs, gscholar):
                 line += ' \\href{%s}{Data}' % pubs[pmid]['data']
 
             # TBD: need to filter out non-DOIs
-            if pubs[pmid]['type'] not in ['book', 'monograph'] and 'badDOI' not in pubs[pmid]:
+            if pubs[pmid]['type'] not in ['book', 'monograph'] and 'DOI' in pubs[pmid]:
                 line += ' \\href{http://dx.doi.org/%s}{DOI}' % pubs[pmid]['DOI']
 
             line += ' \\vspace{2mm}'
@@ -856,16 +889,11 @@ if __name__ == "__main__":
     pubs = add_additional_pubs_from_csv(pubs)
 
     # get additional links and add to pubs
-    links = {}
-    for link in ['data', 'code', 'osf']:
-        links[link] = get_links(f'{link}_links.csv')
+    links = get_links('links.csv')
 
-        for l in links[link]:
-            pubs[l][link] = links[link][l]
-
-    # load additional pubs/books
-    pubs = add_books_from_csv(pubs, 'books.csv')
-    pubs = add_additional_pubs_from_csv(pubs, 'chapters.csv')
+    for linktype in links:
+        for id in links[linktype]:
+            pubs[id][linktype] = links[linktype][id]
 
     latex_lines = render_pubs(pubs, gscholar)
     write_pubs(latex_lines)
