@@ -27,6 +27,8 @@ In addition, it requires generating several CSV files containing other informati
 
 It also allows addition of links to any reference using a csv file called **[links.csv](links.csv)**.
 
+Finally, you will need to generate a json file called params.json that contains some metadata about you - see example [here](params.json).
+
 You will need to take a look at the examples of these files in the repository to see their structure.
 
 ## Running the code
