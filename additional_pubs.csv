@@ -1,9 +1,23 @@
-﻿year,authors,title,journal,volume,page,DOI,type
-2017,"Khanna R, Ghosh J, Poldrack RA,  Koyejo O ",A Deflation Method for Structured Probabilistic PCA.,Proceedings of the 2017 SIAM International Conference on Data Mining,,,,proceedings-article
-2016,"Eisenberg I, Poldrack RA ",Task-set Selection in Probabilistic Environments: a Model of Task-set Inference.,Proceedings of Cognitive Science Society,,,,proceedings-article
-2015,"Khanna R, Ghosh J, Poldrack RA, Koyejo O ",Sparse submodular probabilistic PCA.,Proceedings of the 18th International conference on Artificial Intelligence and Statistics (AISTATS) ,,,,proceedings-article
-2014,"Koyejo O, Khanna R, Ghosh J, Poldrack RA ",On Prior Distributions and Approximate Inference for Structured Variables.,Advances in Neural Information Processing Systems,27,,,proceedings-article
-2013,"Hsieh CJ, Sustik MA, Dhillon IS, Ravikumar R,  Poldrack RA ",BIG \& QUIC: Sparse Inverse Covariance Estimation for a Million Variables.,Advances in Neural Information Processing Systems ,,,,proceedings-article
-2013,"Park M, Koyejo O, Ghosh J, Poldrack RA, Pillow JW ",Bayesian structure learning for functional neuroimaging.,Sixteenth International Conference on Artificial Intelligence and Statistics (AIST ATS). ,,,,proceedings-article
-2003,"Misra M, Katzir T, Wolf M, Poldrack RA",Neural systems for rapid automatized naming identified using fMRI.,Scientific Studies of Reading,8,241-256,,journal-article
-2003,"Poldrack RA, Sandak R",Introduction to special issue: The cognitive neuroscience of reading.,Scientific Studies of Reading,8,199-202,,journal-article
+﻿type,year,authors,title,journal,volume,page,DOI,publisher,ISBN,editors
+proceedings-article,2017,"Khanna R, Ghosh J, Poldrack RA,  Koyejo O ",A Deflation Method for Structured Probabilistic PCA.,Proceedings of the 2017 SIAM International Conference on Data Mining,,,10.1137/1.9781611974973.60,,,
+proceedings-article,2016,"Eisenberg I, Poldrack RA ",Task-set Selection in Probabilistic Environments: a Model of Task-set Inference.,Proceedings of Cognitive Science Society,,,,,,
+proceedings-article,2015,"Khanna R, Ghosh J, Poldrack RA, Koyejo O ",Sparse submodular probabilistic PCA.,Proceedings of the 18th International conference on Artificial Intelligence and Statistics (AISTATS) ,,,,,,
+proceedings-article,2014,"Koyejo O, Khanna R, Ghosh J, Poldrack RA ",On Prior Distributions and Approximate Inference for Structured Variables.,Advances in Neural Information Processing Systems,27,,,,,
+proceedings-article,2013,"Hsieh CJ, Sustik MA, Dhillon IS, Ravikumar R,  Poldrack RA ",BIG \& QUIC: Sparse Inverse Covariance Estimation for a Million Variables.,Advances in Neural Information Processing Systems ,,,,,,
+proceedings-article,2013,"Park M, Koyejo O, Ghosh J, Poldrack RA, Pillow JW ",Bayesian structure learning for functional neuroimaging.,Sixteenth International Conference on Artificial Intelligence and Statistics (AIST ATS). ,,,,,,
+journal-article,2003,"Misra M, Katzir T, Wolf M, Poldrack RA",Neural systems for rapid automatized naming identified using fMRI.,Scientific Studies of Reading,8,241-256,,,,
+journal-article,2003,"Poldrack RA, Sandak R",Introduction to special issue: The cognitive neuroscience of reading.,Scientific Studies of Reading,8,199-202,,,,
+book,2018,Poldrack RA,The New Mind Readers: What Neuroimaging Can and Cannot Reveal about our Thoughts.,,,,,Princeton University Press,978-0-69-117861-5,
+book,2018,Poldrack RA,Statistical Thinking for the 21st Century.,,,,,http://statsthinking21.org,,
+book,2009,"Glimcher P, Fehr E, Camerer C, Poldrack RA (Eds.)",Handbook of Neuroeconomics.,,,,,San Diego: Academic Press ,978-0-12-374176-9 ,
+book-chapter,2018,"White C, Poldrack RA ",Methods for fMRI analysis.,"The Stevens’ Handbook of Experimental Psychology and Cognitive Neuroscience, Fourth Edition (Volume 5)",,,10.1002/9781119170174.epcn515,Wiley,,EJ Wagenmakers
+book-chapter,2017,Poldrack RA,Developing a reproducible workfow for large-scale phenotyping.,The Practice of Reproducible Research: Case Studies and Lessons from the Data-Intensive Sciences,,,,"Oakland, CA: University of California Press ",9780520294752,"J Kitzes, D Turek, F Deniz "
+book-chapter,2013,"Fox CR, Poldrack RA ",Prospect theory and the brain.,Neuroeconomics: Decision Making and the Brain (2nd Edition),,,,Elsevier,9780124160088,P Glimcher et al. 
+book-chapter,2010,Poldrack RA,Subtraction and beyond: The logic of experimental designs for neuroimaging.,Foundational Issues in Human Brain Mapping,,147-160,10.7551/mitpress/9780262014021.001.0001,"Cambridge, MA: MIT Press",,"SJ Hanson, M Bunzl"
+book-chapter,2010,"Poldrack RA, Mumford JA",On the proper role of non-independent ROI analysis: A commentary on Vul and Kanwisher.,Foundational Issues in Human Brain Mapping,,93-96,10.7551/mitpress/9780262014021.001.0001,"Cambridge, MA: MIT Press",,"SJ Hanson, M Bunzl"
+book-chapter,2010,"Poldrack RA, Carr V, Foerde K",Flexibility and generalization in memory systems.,Generalization of Knowledge: Multidisciplinary perspectives ,,53-70,,"New York, NY: Psychology Press. ",9781136945465,"M Banich, D Caccamise "
+book-chapter,2009,"Aron AR, Wise SP, Poldrack RA",Role of the basal ganglia in cognition.,The New Encyclopedia of Neuroscience (Volume 2),,1069-1077,,"Oxford, UK: Academic Press",978-0080447971,LR Squire
+book-chapter,2009,"Bilder RM, Poldrack RA, Parker DS, Reise SP, Jentsch JD, Cannon T, London E, Sabb FW, Foland L, Rizk-Jackson A, Kalar D, Brown N, Carstensen A, Freimer N ",Cognitive phenomics.,Handbook of Neuropsychology of Mental Disorders ,,,,Cambridge: Cambridge University Press ,,"S Wood, N Allen, C Pantelis "
+book-chapter,2009,"Foerde K, Poldrack RA",Procedural learning in humans.,The New Encyclopedia of Neuroscience,,1083-1091,,"Oxford, UK: Academic Press",978-0080447971,LR Squire
+book-chapter,2006,"Poldrack RA, Willingham DB ",Functional neuroimaging of skill learning.,"Handbook of Neuroimaging of Cognition, 2nd Edition ",,113-148,,"Cambridge, MA: MIT Press",9780262033442,"R Cabeza, A Kingstone"
+book-chapter,1999,"Demb JB, Poldrack RA, Gabrieli JDE",Functional neuroimaging of word processing in normal and dyslexic readers.,Converging Methods for Understanding Reading and Dyslexia ,,243-304,,"Cambridge, MA: MIT Press",9780262519250,"R Klein, P. McMullen"
