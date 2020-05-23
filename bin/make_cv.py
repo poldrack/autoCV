@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 generate a LaTeX CV using PubMed and ORCID along with other resources
 
