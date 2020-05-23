@@ -1,12 +1,9 @@
-﻿year,authors,title,journal,volume,pages,DOI
-2017,"Khanna R, Ghosh J, Poldrack RA,  Koyejo O ",A Deflation Method for Structured Probabilistic PCA.,Proceedings of the 2017 SIAM International Conference on Data Mining,,,
-2017,"Tansey W, Koyejo O, Poldrack RA, Scott JG ",False discovery rate smoothing.,Journal of the American S tatistical Association ,113,1156-1171,10.1080/01621459.2017.1319838
-2016,"Eisenberg I, Poldrack RA ",Task-set Selection in Probabilistic Environments: a Model of Task-set Inference.,Proceedings of Cognitive Science Society,,,
-2015,"Khanna R, Ghosh J, Poldrack RA, Koyejo O ",Sparse submodular probabilistic PCA.,Proceedings of the 18th Inter- national conference on Artificial Intelligence and Statistics (AISTATS) ,,,
-2014,"Koyejo O, Khanna R, Ghosh J, Poldrack RA ",On Prior Distributions and Approximate Inference for Structured Variables.,Advances in Neural Information Processing Systems,27,,
-2013,"Hsieh CJ, Sustik MA, Dhillon IS, Ravikumar R,  Poldrack RA ",BIG \& QUIC: Sparse Inverse Covariance Estimation for a Million Variables.,Advances in Neural Information Processing Systems ,,,
-2013,"Koyejo O, Patel P, Ghosh J, Poldrack RA ",Learning Predictive Cognitive Structure from fMRI using Supervised Topic Models.,International Conference on Pattern Recognition in Neuroimaging (PRNI) ,,,
-2013,"Park M, Koyejo O, Ghosh J, Poldrack RA, Pillow JW ",Bayesian structure learning for functional neuroimaging.,S ixteenth International Conference on Artificial Intelligence and S tatistics (AIST ATS). ,,,
-2010,"Lenartowicz A, Kalar D, Congdon E., Poldrack RA ",Towards an Ontology of Cognitive Control.,Topics in Cognitive Science,2,678-692 ,10.1111/j.1756-8765.2010.01100
-2003,"Misra M, Katzir T, Wolf M, Poldrack RA",Neural systems for rapid automatized naming identified using fMRI.,Scientific Studies of Reading,8,241-256,
-2003,"Poldrack RA, Sandak R",Introduction to special issue: The cognitive neuroscience of reading.,Scientific Studies of Reading,8,199-202,
+﻿year,authors,title,journal,volume,page,DOI,type
+2017,"Khanna R, Ghosh J, Poldrack RA,  Koyejo O ",A Deflation Method for Structured Probabilistic PCA.,Proceedings of the 2017 SIAM International Conference on Data Mining,,,,proceedings-article
+2016,"Eisenberg I, Poldrack RA ",Task-set Selection in Probabilistic Environments: a Model of Task-set Inference.,Proceedings of Cognitive Science Society,,,,proceedings-article
+2015,"Khanna R, Ghosh J, Poldrack RA, Koyejo O ",Sparse submodular probabilistic PCA.,Proceedings of the 18th International conference on Artificial Intelligence and Statistics (AISTATS) ,,,,proceedings-article
+2014,"Koyejo O, Khanna R, Ghosh J, Poldrack RA ",On Prior Distributions and Approximate Inference for Structured Variables.,Advances in Neural Information Processing Systems,27,,,proceedings-article
+2013,"Hsieh CJ, Sustik MA, Dhillon IS, Ravikumar R,  Poldrack RA ",BIG \& QUIC: Sparse Inverse Covariance Estimation for a Million Variables.,Advances in Neural Information Processing Systems ,,,,proceedings-article
+2013,"Park M, Koyejo O, Ghosh J, Poldrack RA, Pillow JW ",Bayesian structure learning for functional neuroimaging.,Sixteenth International Conference on Artificial Intelligence and Statistics (AIST ATS). ,,,,proceedings-article
+2003,"Misra M, Katzir T, Wolf M, Poldrack RA",Neural systems for rapid automatized naming identified using fMRI.,Scientific Studies of Reading,8,241-256,,journal-article
+2003,"Poldrack RA, Sandak R",Introduction to special issue: The cognitive neuroscience of reading.,Scientific Studies of Reading,8,199-202,,journal-article
