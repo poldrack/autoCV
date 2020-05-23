@@ -1,4 +1,8 @@
 %------------------------------------
+% autoCV template - Russell Poldrack, 2020
+% License: MIT License
+%
+% Adapted from original template by: 
 % Dario Taraborelli
 % Typesetting your academic CV in LaTeX
 %
@@ -30,22 +34,8 @@
 
 % FONTS
 \defaultfontfeatures{Mapping=tex-text} % converts LaTeX specials (``quotes'' --- dashes etc.) to unicode
-%\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Garamond}
 
-\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Hoefler Text}
-%\setmonofont[Scale=0.8]{Monaco} 
-%\setsansfont[Scale=0.9]{Optima Regular} 
-
-%\defaultfontfeatures{Mapping=tex-text} % converts LaTeX specials (``quotes'' --- dashes etc.) to unicode
-%\setromanfont [Ligatures={Common}, BoldFont={Fontin Bold}, ItalicFont={Fontin Italic}]{Fontin}
-%\setromanfont [Ligatures={Common}, BoldFont={Hoefler Text Black}, ItalicFont={Hoefler Text Italic}]{Hoefler Text}
-%\setromanfont [Ligatures={Common}, Numbers={OldStyle}]{Times}
-
-%\setsansfont [Ligatures={Common}, BoldFont={Fontin Sans Bold}, ItalicFont={Fontin Sans Italic}]{Fontin Sans}
-%\setmonofont[Scale=0.8]{Monaco} 
-% ---- CUSTOM AMPERSAND
-%\newcommand{\amper}{{\fontspec[Scale=.95]{Fontin}\selectfont\itshape\&}}
-%%\newcommand{\amper}{{\fontspec[Scale=.95]{Hoefler Text}\selectfont\itshape\&}}
+\setmainfont[Ligatures=TeX]{TeXGyreTermes}
 
 % ---- MARGIN YEARS
 \newcommand{\years}[1]{\marginpar{\scriptsize #1}}
@@ -59,358 +49,40 @@
 
 % PDF SETUP
 % ---- FILL IN HERE THE DOC TITLE AND AUTHOR
-%\usepackage[dvipdfm, bookmarks, colorlinks, breaklinks, pdftitle={Russell Poldrack - vita},pdfauthor={My name}]{hyperref}  
 
-\usepackage[bookmarks, colorlinks, breaklinks, pdftitle={Russell Poldrack - vita},pdfauthor={My name}]{hyperref}  
+\usepackage[bookmarks, colorlinks, breaklinks, pdftitle={Curriculum Vitae},pdfauthor={Author}]{hyperref}  
 \hypersetup{linkcolor=blue,citecolor=blue,filecolor=black,urlcolor=blue}
-
-% DOCUMENT
-\begin{document}
-\reversemarginpar
-{\LARGE Russell A. Poldrack}\\[4mm]
-\vspace{-1cm}
-
-
-
-\begin{multicols}{2}
-Stanford University\\
-Department of Psychology\\
-Jordan Hall, Building 420\\
-450 Serra Mall\\
-Stanford, CA \texttt{94305-2130}\\  %[.2cm]
 
 \renewcommand\UrlFont{\color{red}\rmfamily\em}
 
-\columnbreak
-Phone:  650-497-8488\\
-Fax: 650-725-5699\\
-Email: poldrack@stanford.edu\\
-\textsc{url}: \href{http://www.poldracklab.org}{www.poldracklab.org}\\ 
-\textsc{github}: \href{https://github.com/poldrack/}{github.com/poldrack}\\
-\textsc{Twitter}: \href{https://twitter.com/russpoldrack}{@russpoldrack}\\
-\textsc{ORCID}: \href{https://orcid.org/0000-0001-6755-0259}{0000-0001-6755-0259}
-\end{multicols}
-%\vspace{-5mm}
+% DOCUMENT
+\begin{document}
+
+\input{header}
 
 \hrule
 
-\section*{Education}
-\noindent
-\textit{1985-1989:} BA in psychology, Baylor University, Waco, TX
+\input{education}
 
-\textit{1989-1991:} MA in cognitive psychology, University of Illinois, Urbana, IL
+\input{employment}
 
-\textit{1991-1995:} PhD in cognitive psychology, University of Illinois, Urbana, IL
+\input{distinctions}
 
-%%\hrule
-\section*{Employment and professional affiliations}
-\noindent
+\input{editorial}
 
-\textit{2017-:} Professor (by courtesy), Department of Computer Science, Stanford University
+\input{memberships}
 
-\textit{2017-:} Affiliate, Stanford Bio-X
+\input{service}
 
-\textit{2016-:} Albert Ray Lang Professor, Department of Psychology, Stanford University
+\input{funding}
 
-\textit{2014-2016:} Professor, Department of Psychology, Stanford University
+\input{teaching}
 
-\textit{2014-:} Affiliate, Stanford Neuroscience Institute
-
-\textit{2014-:} Affiliate, Stanford Biomedical Informatics Training Program
-
-\textit{2013-2014:} C. B. Smith, Sr., Nash Phillips, Clyde Copus Centennial Chair, University of Texas at Austin
-
-\textit{2009-2014:} Professor of Psychology and Neurobiology, University of Texas at Austin
-
-\textit{2009-2014:} Director, Imaging Research Center, University of Texas at Austin
-
-\textit{2008-2009:} Professor of Psychology and Psychiatry \& Biobehavioral Sciences, UCLA
-
-\textit{2006-2009:} Wendell Jeffrey and Bernice Wenzel Term Chair in Behavioral Neuroscience
-
-\textit{2006-2008:} Associate Professor of Psychology and Psychiatry \& Biobehavioral Sciences, UCLA
-
-\textit{2003-2009:} Member, UCLA Interdepartmental Neuroscience Program
-
-\textit{2003-2009:} Fellow, UC Irvine Center for the Neurobiology of Learning and Memory
-
-\textit{2002-2009:} Member, UCLA Brain Research Institute
-
-\textit{2002-2006}: Assistant Professor of Psychology, UCLA
-
-\textit{1999-2002}: Assistant Professor of Radiology, Harvard Medical School
-
-\textit{1999-2002}: Assistant Psychologist, MGH-NMR Center, Massachusetts General Hospital
-
-\textit{2001-2002}: Member, Faculty of the Harvard Graduate School of Education
-
-\textit{1996}: Lecturer, Stanford University
-
-\textit{1995-1999}: Postdoctoral Fellow, Department of Psychology, Stanford University
-
-
-
-%\hrule
-\section*{Honors and Awards}
-\noindent
-
-\textit{2018}: Fellow, Society of Experimental Psychologists
-
-\textit{2017}: Fellow, Psychonomic Society
-
-\textit{2016}: Distinguished Scholar, Chinese University of Hong Kong
-
-\textit{2012}: Hilgard Scholar, Stanford University
-
-\textit{2012}: Social and Affective Neuroscience Society Innovation Award for Yarkoni et al., 2011 \textit{Nature Methods} paper
-
-\textit{2010}: Visiting Professor, Beijing Normal University, China
-
-\textit{2010}: Association of American Publishers PROSE Awards for Economics and Excellence in the Social Sciences for \textit{Neuroeconomics: Decision Making and the Brain} 
-
-\textit{2009}: Fellow, Association for Psychological Science
-
-\textit{2005}: APA Distinguished Scientific Award for Early Career Contributions to Psychology
-
-\textit{2005}: Wiley Young Investigator Award, Organization for Human Brain Mapping
-
-\textit{2004}: Brian P. Copenhaver Award for Innovation in Teaching with Technology, UCLA
-
-\section*{Editorial Duties and Reviewing}
-\noindent
-\textit{Founding Co-Editor-in-Chief:} Frontiers in Brain Imaging Methods (2012-2018)\vspace{2mm}
-
-\textit{Associate Editor:} Frontiers in Human Neuroscience\vspace{2mm}
-
-\textit{Contributing Editor:} Psychological Bulletin (2012-2014)\vspace{2mm}
-
-\textit{Advisory Council Member:} Advances in Methods and Practices in Psychological Science (AMPPS) \vspace{2mm}
-
-\textit{Handling Editor (ad hoc):} Proceedings of the National Academy of Sciences, eLife\vspace{2mm}
-
-\textit{Editorial boards:} Nature Scientific Data (Senior Editorial Board), Annual Review of Psychology, Trends in Cognitive Sciences, Cerebral Cortex, Human Brain Mapping, GigaScience, NBDT (Neurons, Behavior, Data Analysis, and Theory), SCAN (Social, Cognitive, and Affective Neuroscience) (2006-2016), Cognitive Science (2008-2014), Neuroimage (2005-2008)\vspace{2mm}
-
-\textit{Ad hoc reviewer:} Nature, Science, Brain, Proceedings of the National Academy of Sciences (USA), Nature Neuroscience, Neuron, Neuroimage, Journal of Neuroscience, Journal of Cognitive Neuroscience, Cerebral Cortex, Human Brain Mapping, Cognitive, Affective,\& Behavioral Neuroscience, Journal of Experimental Psychology: Learning, Memory, \& Cognition, Journal of Memory and Language, Learning \& Memory, Cognitive Brain Research, Experimental Brain Research, Cognitive Science, Perception, Neurobiology of Aging, Neuroscience Letters, Journal of Neuroscience Methods, Memory \& Cognition, Trends in Cognitive Science, Behavioral and Brain Sciences\vspace{2mm}
-
-\textit{Abstract Reviewer:} NIPS, PRNI, RLDM, Human Brain Mapping\vspace{2mm}
-
-\textit{Grant review panelist:} NIH SPC Study Section member (2012-2018), National Science Foundation Cognitive Neuroscience Panel (2003-2005).\vspace{2mm}
-
-\textit{Chair:} NIH Special Emphasis Panel ZNS1 SRB-R, 2006
-\vspace{2mm}
-
-\textit{Ad hoc grant reviewer:} NIMH, NSF, Wellcome Foundation (UK), Macarthur Foundation, Social Sciences and Humanities Research Council of Canada, Israeli-US Science Foundation, UCLA Stein-Oppenheimer Grant Program, Hospital for Sick Children Foundation (Canada) Grant Program, Cure Autism Now Foundation Grant Program, Chinese University of Hong Kong, Danish National Research Foundation
-
-\section*{Professional Societies}
-\noindent
-Association for Psychological Science, Organization for Human Brain Mapping, Memory Disorders Research Society, Society for Neuroscience
-
-\section*{Executive/organizational duties}
-\noindent
-
-Member, Brain Imaging Data Structure (BIDS) Steering Group, 2019-present  \vspace{2mm} 
-
-Education Chair (elected), Organization for Human Brain Mapping, 2017-2018  \vspace{2mm} 
-
-Member, Executive Committee, NIH Core Neuropsychological Measures for Obesity and Diabetes Project, 2017-2018  \vspace{2mm}
-
-Co-chair, INCF Congress on Neuroinformatics, 2016-2017  \vspace{2mm}
-
-Scientific Committee Member, ICON (International Conference on Cognitive Neuroscience), 2017  \vspace{2mm} 
-
-Member, NIMH Workgroup on Revisions to the RDoC Matrix, 2017-present  \vspace{2mm} 
-
-Executive Committee Member, Cognitive Computational Neuroscience Conference, 2016-present  \vspace{2mm} 
-
-Member, Editorial Search Committee for \emph{Advances in Methodologies and Practices in Psychological Science.} \vspace{2mm} 
-
-External Advisory Board Member, Center for Reproducible Neuroimaging Computation, University of Massachusetts  \vspace{2mm} 
-
-Member, Databrary Advisory Panel, 2016-present   \vspace{2mm} 
-
-External Advisory Board Member, Adolescent Brain Cognitive Development (ABCD) Study, 2015-present  \vspace{2mm} 
-
-Member, Behavioral And Social Sciences Workgroup, National Advisory Mental Health Council, 2015-present  \vspace{2mm} 
-
-Member, Advisory Panel to the Scientific Agenda, Kavli Human Project, 2015-Present  \vspace{2mm} 
-
-Organizer, Beijing Advanced fMRI Analysis Course, 2015  \vspace{2mm} 
-
-Chair of External Advisory Panel, Human Connectome Project, 2011-2015 \vspace{2mm} 
-
-Member, OHBM Committee on Best Practice in Data Analysis, 2014-2016 \vspace{2mm} 
-
-Member, TACC Stampede Data Intensive Science Advisory Group, 2014-present \vspace{2mm} 
-
-Program Committee Member, Psychonomic Society, 2014-present \vspace{2mm} 
-
-Program Committee Member, INCF Congress on Neuroinformatics, 2013-2014\vspace{2mm} 
-
-Steering Committee Member, National Academies Keck Futures Initiative on the Informed Brain in a Digital World, 2012-2013\vspace{2mm}
-
-Co-Organizer, INCF Neuroimaging Datasharing and Data Access Workshop, 2011\vspace{2mm}
-
-Selection Committee member, APA Early Career Award in Behavioral/Cognitive Neuroscience, 2010\vspace{2mm} 
-
-Chair, Organization for Human Brain Mapping, 2009-2010\vspace{2mm} 
-
-Chief Information Officer, Society for Neuroeconomics, 2007-2013\vspace{2mm} 
-
-Organizer, UCLA Advanced Neuroimaging Summer School, 2007-2009\vspace{2mm} 
-
-Co-Organizer, IPAM Summer School on Mathematics in Brain Imaging, 2004, 2008\vspace{2mm} 
-
-Member of Society for Neuroscience Neuroinformatics Committee, 2008-2010\vspace{2mm} 
-
-Organizer, OHBM Cognitive Neuroscience Course, 2006-2007\vspace{2mm} 
-
-Program Committee, Organization for Human Brain Mapping 2004-2005\vspace{2mm} 
-
-Session Chair, Society for Neuroscience Annual Meeting (2001, 2002, 2004)\vspace{2mm} 
-
-Session Chair, Human Brain Mapping Annual Meeting (2003)\vspace{2mm} 
-
-Executive Committee, Cognitive Neuroscience of Category Learning Conference, 2002-2004\vspace{2mm} 
-
-%Scientific Advisory Board, Hahn Foundation for Children, 2002-present \vspace{2mm} 
-
-
-\section*{Grants and contracts}
-\noindent
-\subsection*{Active:} 
-
-Principal Investigator, NIMH, ``Openneuro: An Open Archive For Analysis And Sharing Of Brain Initiative Data''.  2018-2023.   \vspace{2mm}
-
-Principal Investigator, NSF, ``Spokes: MEDIUM: WEST: Breaking down barriers for reproducible neuroimaging data analyses''.  2018-2021.    \vspace{2mm}
-
-Principal Investigator, NIMH, ``Characterizing cognitive control networks using a precision neuroscience approach.'' 2018-2023.  \vspace{2mm}
-  
-Principal Investigator, NIMH, ``BIDS-Derivatives: A data standard for derived data and models in the BRAIN Initiative.'' 2017-2019. \vspace{2mm}
-
-Principal Investigator, NSF, ``Computational Infrastructure for Brain Research: EAGER: A Computationally Enabled Knowledge Infrastructure for Cognitive Neuroscience.''  2017-2019.  \vspace{2mm}
-
-Co-investigator (R. Adolphs, PI)/subcontract PI, NINDS, ``Causal mapping of emotion networks with concurrent electrical stimulation and fMRI'', 2017-2020  \vspace{2mm}
-
-Co-investigator (L Williams PI), NIMH, ``Mapping connectomes for disordered emotional states,'' 2017-2021.   \vspace{2mm}
-
-Principal Investigator (MPI, Stanford component), NIH Common Fund UH2/UH3, "Applying novel technologies and methods to inform the ontology of self-regulation", 2015-2020.   \vspace{2mm}
-
-Co-investigator (S. Ghosh, PI)/subcontract PI, NIBIB, ``NiPype: Dataflows for Reproducible Biomedical Research'', 2016-2020.    \vspace{2mm}
-
-Co-Investigator (D. Glahn, PI)/subcontract PI, NIMH, ``Gene networks influencing psychotic dysconnectivity in African Americans'', 2014-2019. \vspace{2mm}
-
-Co-investigator (T. Yarkoni, PI)/subcontract PI, NIMH, ``NeuroScout: A cloud-based platform for rapid re-analysis of naturalistic fMRI datasets'', 2016-2021.   \vspace{2mm}
-
-Co-investigator (S. Makeig, PI)/subcontract PI, NIMH, ``Development of a human NeuroElectroMagnetic data Archive and tools Resource (NEMAR)``, 2019-2024.  \vspace{2mm}
-
-\subsection*{Completed:}
-
-Principal Investigator, Laura and John Arnold Foundation, ``Stanford Center for Reproducible Neuroscience'', 2015-2018.  \vspace{2mm}
-
-Collaborator (G. Leng, PI), EC FP7 Consortium, ``The Neurobiology of Decision-Making in Eating - Innovative Tools (NUDGE-IT)'', 2014-2018.\vspace{2mm}
-
-Co-Investigator, Stanford Cyber Initiative, ``Behavioral metrics for cyber authentication'',  2015-2017.  \vspace{2mm}
-
-Principal Investigator, NIDA R21, ``The development of neural responses to punishment in adolescence'', 2013-2016.\vspace{2mm}
-
-Principal Investigator, ONR DURIP, ``Acquisition of an MRI-compatible EEG system'', 2013-2014. \vspace{2mm}
-
-Co-investigator (T. Yarkoni, PI), NIMH R01, ``Large-scale automated synthesis of human functional neuroimaging data'', 2012-2016. \vspace{2mm}
-
-Principal Investigator, NIA R01, ``Overcoming the persistence of first-learned habits to maintain behavioral change'', 2011-2015. \vspace{2mm}
-
-Principal Investigator, NSF, ``An open data repository for cognitive neuroscience: The OpenfMRI Project'', 2011-2014.   \vspace{2mm}
-
-Co-investigator (S. Hanson/C. Glymour, PIs), James S. McDonnell Foundation, Collaborative Activity Award, ``Assessing Brain Interactivity: Model Specification, Causality and Dynamics``, 2006-2014.\vspace{2mm}
-
-Principal Investigator, NIMH R01, ``The Cognitive Atlas'', 2008-2014.\vspace{2mm}
-
-Principal Investigator, Office of Naval Research, ``Predicting Individual Differences Using Resting-State fMRI and Network Analysis'', 2010-2014.\vspace{2mm}
-
-Principal Investigator, NCRR G20, ``Enhancing an Imaging Core at the University of Texas at Austin'', 2010-2012. \vspace{2mm}
-
-Co-investigator (R. Bilder, PI), NIH Roadmap/NCRR, ``Consortium for Neuropsychiatric Phenomics'', 2007-2012.\vspace{2mm}
-
-Principal Investigator, James S. McDonnell Foundation, 21st Century Science Award, ``Habit, automaticity, and cognitive control'', 2005-2010.\vspace{2mm}
-
-Project PI/Core co-PI (J. McCracken, Center PI), NIMH, ``CIDAR: Translational Research to Enhance Cognitive Control (TRECC)'', 2006-2011.\vspace{2mm}
-
-Principal Investigator, Office of Naval Research, ``Predictive analyses of training-related plasticity using fMRI and pattern classification techniques'', 2006-2009.\vspace{2mm}
-
-Co-investigator (E. London, PI), NIDA, ``Neural Systems, Inhibitory Control, and Methamphetamine Dependence'', 2005-2009.\vspace{2mm}
-
-Co-investigator (E. London, PI), NIDA,``Methamphetamine Abuse, Inhibitory Control: Implications for Treatment'', 2006-2009.\vspace{2mm}
-
-Co-Principal Investigator (with Craig Fox), National Science Foundation, Collaborative Research Grant, ``The neural basis of risky decision making'', 2004-2007.\vspace{2mm}
-
-Principal Investigator, High-Q Foundation, Research Contract, ``Longitudinal assessment of frontostriatal activation in patients with presymptomatic Huntington's disease'', 2006-2008.\vspace{2mm}
-
-Co-investigator (R. Bilder, PI), NIH Roadmap/NCRR, ``Cognitive phenotyping for neuropsychiatric therapeutics'', 2004-2007.\vspace{2mm}
-
-Co-investigator (R. Asarnow, PI), NIHM R24, ``Cortico-striatal dysfunction and vulnerability to schizophrenia'', 2005-2008.\vspace{2mm}
-
-Principal Investigator, Whitehall Foundation, Research Grant, ``Interactive memory systems in the human brain'', 2003-2006.\vspace{2mm}
-
-Co-Principal Investigator (with Mark Gluck), National Science Foundation, Collaborative Research Grant, ``The cognitive neuroscience of category learning'', 2003-2006.\vspace{2mm}
-      
-Principal Investigator, National Institute of Neurological Disease and Stroke, Exploratory/Development Grant (R21 NS43333), ``Cholinergic Enhancement of of Human Cortical Plasticity'',  2002-2004.\vspace{2mm}
-      
-Principal Investigator, Janssen Research Foundation, Research Grant, ``Cholinergic enhancement of perceptual learning'', 2002-2003.\vspace{2mm}
-      
-Co-investigator, J.S. McDonnell Foundation, Collaborative Activity Award (M. Gluck, PI),``Interdisciplinary Consortium on the Cognitive Neuroscience of Category Learning'', 2002-2005.\vspace{2mm}
-      
-Supervisor, Canadian Institute for Health Research, Postdoctoral Fellowship (Laurie Cestnick, Fellow), ``Reading and fMRI'', 2001-2002.\vspace{2mm}
-      
-Principal Investigator, National Science Foundation, Cognitive Neuroscience Pilot Grant, ``Enhancing human cortical plasticity: Visual psychophysics and fMRI'', 2001-2002.\vspace{2mm}
-      
-Principal Investigator, Alafi Family Foundation Grant, ``Multimodal imaging of reading development and dyslexia'', 2000-2002.\vspace{2mm}
-      
-Principal Investigator, International Dyslexia Association, ``Magnetic resonance imaging of cross-modal processing in dyslexia'', 2000-2001.\vspace{2mm}
-      
-Supervisor, McDonnell-Pew Program for Cognitive Neuroscience, Individual Grant (Rajeev Raizada, Fellow), ``Cross-modal processing and its relations to dyslexia: Psychophysics, fMRI, and neurophysiology'', 2000-2003.\vspace{2mm}
-      
-Fellow, McDonnell-Pew Program for Cognitive Neuroscience, Individual Grant, ``The Neural Basis of Skill Learning using fMRI'', 1996-1999.\vspace{2mm}
-      
-Fellow, National Institute of Mental Health, National Research Service Award (MH10433), ``Relational Representation in Amnesia'', 1993 - 1995.
-
-\section*{Teaching}
-
-%Psychology 262: Human Learning and Memory, 2004 (with R. Bjork), 2007, 2009 (with A. Castel)\vspace{2mm} 
-%
-%Psychology 85: Introduction to Cognitive Science, 2003-2009\vspace{2mm} 
-%
-%Psychology 124: The Cognitive Neuroscience of Memory, 2003-2007\vspace{2mm} 
-%
-%Psychology 254: Computer Methods for Experimental Psychology, 2003, 2004, 2006, 2007\vspace{2mm} 
-%
-%M285, Functional Neuroimaging (with M.Cohen), 2004\vspace{2mm} 
-%      
-%Psychology 121: Functional MRI Laboratory (with S. Engel), 2002, 2003, 2006\vspace{2mm} 
-%
-%Lecturer, MGH fMRI Visiting Fellowship, 2001-2002\vspace{2mm} 
-%      
-%Lab Lecturer, HST.583 (Functional Magnetic Resonance Imaging: Data Acquisition and Analysis), MIT, 2001.
-%
-\textit{Undergraduate}: Introduction to Statistics, Judgment and Decision Making, Reading the Brain (Intro Seminar), Introduction to Cognitive Science, Cognitive Neuroscience of Memory, Functional MRI Laboratory\vspace{2mm}
-
-\textit{Graduate}: Cognitive Neuroscience, Functional Neuroimaging, Neuroeconomics, Human Learning and Memory, Computer Methods for Experimental Psychology\vspace{2mm}
-
-
-\section*{Patents}
-Klingberg, T., Hedehus, M., Gabrieli, J. D. E., Moseley, M.E., \& Poldrack, R. A. (October 8, 
-2002). \textit{Analysis of cerebral white matter for prognosis and diagnosis of neurological disorders.} US Patent \# 
-6,463,315. 
-
-\section*{Publications (Google Scholar H-index = 112)}
+\input{patents}
 
 \input{pubs}
 
-\section*{Presentations and Abstracts}
-
 \input{presentations}
-
-%\hrule
-\section*{Invited addresses and colloquia (* - talks given virtually)}
 
 \input{talks}
 
@@ -420,7 +92,7 @@ Klingberg, T., Hedehus, M., Gabrieli, J. D. E., Moseley, M.E., \& Poldrack, R. A
 
 % FILL IN THE FULL URL TO YOUR CV
 \begin{center}
-{\footnotesize \href{http://www.poldracklab.org}{http://www.poldracklab.org} — Last updated: \today — Generated using \href{https://github.com/poldrack/autoCV}{AutoCV} 
+{\footnotesize Last updated: \today — Generated using \href{https://github.com/poldrack/autoCV}{AutoCV} 
 }
 \end{center}
 
