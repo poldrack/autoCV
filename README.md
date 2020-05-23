@@ -25,7 +25,7 @@ In addition, it requires generating several CSV files containing other informati
 * **[additional_pubs.csv](additional_pubs.csv)**: Publications that are not found in PubMed/ORCID (including books, book chapters, and conference proceedings - note that ORCID allows addition of books but the metadata are a bit screwy, so I prefer entering them manually in this file)
 * **[teaching.csv](teaching.csv)**: Courses taught
 
-It also allows addition of links to any reference using a csv file called **links.csv**.
+It also allows addition of links to any reference using a csv file called **[links.csv](links.csv)**.
 
 You will need to take a look at the examples of these files in the repository to see their structure.
 
