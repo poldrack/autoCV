@@ -5,6 +5,27 @@ cv: generate render
 DOCKER_USERNAME = poldrack
 current_dir = $(shell pwd)
 
+clean:
+	- rm autocv_template.aux
+	- rm autocv_template.log
+	- rm autocv_template.out
+	- rm autocv_template.pdf
+	- rm distinctions.tex
+	- rm editorial.tex
+	- rm education.tex
+	- rm employment.tex
+	- rm funding.tex
+	- rm header.tex
+	- rm memberships.tex
+	- rm patents.tex
+	- rm presentations.tex
+	- rm pubs.tex
+	- rm scholar.log
+	- rm service.tex
+	- rm talks.tex
+	- rm teaching.tex
+
+	
 cv-local:
 	python make_cv.py
 
