@@ -4,7 +4,9 @@ A tool for automatic generation of a LaTeX-based curriculum vitae (CV)
 
 ### Motivation
 
-I recently wanted to update my CV to include all of my open science activities, such as links to open access papers, code/data, and include DOIs.  Rather than doing this by hand for each publication, I decided to build an automated tool to generate a CV using PubMed and ORCID to download the publication information, and a set of text files containing other info.  It's still a work in progress but it might be helpful for you; so far I have only tested it on my own CV, and it will almost certainly need work for others (especially if you have a common name that is not uniquely identified with a simple Pubmed query). It will be most useful for more advanced researchers whose CV may be many pages long.
+I recently wanted to update my CV to include all of my open science activities, such as links to open access papers, code/data, and include DOIs.  Rather than doing this by hand for each publication, I decided to build an automated tool to generate a CV using PubMed and ORCID to download the publication information, and a set of text files containing other info.  It's still a work in progress but it might be helpful for you; so far I have only tested it on my own CV, and it will almost certainly need work for others (especially if you have a common name that is not uniquely identified with a simple Pubmed query). It will be most useful for more advanced researchers whose CV may be many pages long.  
+
+The project takes advantage of the [very nice LaTeX CV template](http://nitens.org/taraborelli/cvtex) from Dario Taraborelli.
 
 ### Structure
 
@@ -43,4 +45,4 @@ and then use this command from a directory containing the necessary files:
 
 This will download the data and generate the CV files, and then render them to PDF.
 
-To test it out, you can run it from within the *tests* directory, which contains example files for my CV.
+To test it out, you can run it from within the *tests* directory, which contains example files for my CV.  You can see an example of the output [here][tests/]
