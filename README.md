@@ -1,5 +1,7 @@
 # autoCV
 
+[![PyPI version](https://badge.fury.io/py/autocv.svg)](https://badge.fury.io/py/autocv)
+
 A tool for automatic generation of a LaTeX-based curriculum vitae (CV)
 
 ### Motivation
@@ -37,7 +39,7 @@ You will need to take a look at the examples of these files in the repository to
 
 The easiest way to run the code is using Docker, which removes the need to install a full LaTeX installation.  After [installing the Docker client](https://docs.docker.com/get-docker/), you can simply install the package:
 
-```pip install git+https://github.com/poldrack/autoCV```
+```pip install autocv```
 
 and then use this command from a directory containing the necessary files:
 
