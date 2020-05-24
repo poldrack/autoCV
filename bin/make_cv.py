@@ -5,7 +5,6 @@ generate a LaTeX CV using PubMed and ORCID along with other resources
 Russ Poldrack, May 2020
 """
 
-from Bio import Entrez
 from autocv.autocv import get_params, get_orcid_data, get_orcid_education,\
     get_orcid_employment, get_orcid_distinctions, get_orcid_memberships,\
     get_orcid_service, get_orcid_dois
@@ -20,10 +19,10 @@ from autocv.autocv import get_pubmed_records, get_pubmed_pubs
 from autocv.autocv import get_crossref_records, process_crossref_records
 from autocv.autocv import write_pubs, write_presentations, write_talks
 
+
 if __name__ == "__main__":
 
     params = get_params()
-    Entrez.email = params['email']
 
     # get orcid data
     print('reading data for ORCID id:', params['orcid'])
