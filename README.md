@@ -47,4 +47,4 @@ and then use this command from a directory containing the necessary files:
 
 This will download the data and generate the CV files, and then render them to PDF.
 
-To test it out, you can run it from within the *tests* directory, which contains example files for my CV.  You can see an example of the output [here][tests/]
+To test it out, you can run it from within the *tests* directory, which contains example files for my CV.  You can see an example of the output [here][tests/autocv_template.pdf]
