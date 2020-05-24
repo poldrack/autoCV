@@ -1,0 +1,10 @@
+#!/bin/bash
+
+GENSCRIPT=`which make_cv.py`
+
+# generate CV files
+docker run -it -v $PWD:/data  poldrack/latex-python python $GENSCRIPT
+
+# render C
+docker run -it -v $PWD:/data  poldrack/latex-python
+
