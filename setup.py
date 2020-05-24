@@ -9,12 +9,13 @@ descr = """autoCV: An automated CV generator"""
 
 DISTNAME = "autocv"
 DESCRIPTION = descr
+LONGDESCRIPTION = "This package automatically generates an academic curriculum vita (CV) using a set of open APIs along with a set of local files."
 MAINTAINER = 'Russ Poldrack'
 MAINTAINER_EMAIL = 'poldrack@stanford.edu'
 LICENSE = 'MIT'
-URL = 'http://www.poldracklab.org/'
+URL = 'https://github.com/poldrack/autoCV'
 DOWNLOAD_URL = 'https://github.com/poldrack/autoCV'
-VERSION = '2020May23'
+VERSION = '1.0a2'
 
 
 def check_dependencies():
@@ -60,6 +61,7 @@ if __name__ == "__main__":
           maintainer=MAINTAINER,
           maintainer_email=MAINTAINER_EMAIL,
           description=DESCRIPTION,
+          long_description=LONGDESCRIPTION,
           license=LICENSE,
           version=VERSION,
           url=URL,
