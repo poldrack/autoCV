@@ -1,4 +1,4 @@
-# Dockerfile for ThinkStats
+# Dockerfile for autoCV
 
 FROM python:3.6-stretch
 
@@ -24,7 +24,9 @@ RUN pip install \
     requests \
     crossrefapi \
     scholarly \
-    pypatent
+    pypatent \
+    pytest
 
+RUN pip install git+https://github.com/poldrack/autoCV
 WORKDIR /data
 CMD ["/usr/bin/xelatex", "autocv_template.tex"]
