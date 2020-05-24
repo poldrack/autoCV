@@ -60,3 +60,8 @@ render: guard-DOCKER_USERNAME
 generate:
 	docker run -it -v $(current_dir):/data  $(DOCKER_USERNAME)/latex-python python make_cv.py
 
+pypi:
+	python3 -m pip install --user --upgrade setuptools wheel
+	python3 -m pip install --user --upgrade twine
+	python3 setup.py sdist bdist_wheel
+	python3 -m twine upload dist/*
