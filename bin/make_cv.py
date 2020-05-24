@@ -5,6 +5,9 @@ generate a LaTeX CV using PubMed and ORCID along with other resources
 Russ Poldrack, May 2020
 """
 
+import os
+import shutil
+import pkg_resources
 from autocv.autocv import get_params, get_orcid_data, get_orcid_education,\
     get_orcid_employment, get_orcid_distinctions, get_orcid_memberships,\
     get_orcid_service, get_orcid_dois
@@ -92,3 +95,8 @@ if __name__ == "__main__":
     write_pubs(latex_lines)
     write_presentations()
     write_talks()
+
+    # if template is not in current directory then copy it here
+    if not os.path.exists('autocv_template.tex'):
+        tempfile = pkg_resources.resource_filename('autocv', 'templates/autocv_template.tex')
+        shutil.copy(tempfile, '.')
