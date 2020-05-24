@@ -33,8 +33,14 @@ You will need to take a look at the examples of these files in the repository to
 
 ## Running the code
 
-The easiest way to run the code is using Docker, which removes the need to install a full LaTeX installation.  After [installing the Docker client](https://docs.docker.com/get-docker/), you can simply use this command:
+The easiest way to run the code is using Docker, which removes the need to install a full LaTeX installation.  After [installing the Docker client](https://docs.docker.com/get-docker/), you can simply install the package:
 
-```make cv```
+```pip install git+https://github.com/poldrack/autoCV```
+
+and then use this command from a directory containing the necessary files:
+
+```autoCV```
 
 This will download the data and generate the CV files, and then render them to PDF.
+
+To test it out, you can run it from within the *tests* directory, which contains example files for my CV.
