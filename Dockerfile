@@ -27,6 +27,9 @@ RUN pip install \
     pypatent \
     pytest
 
-RUN pip install git+https://github.com/poldrack/autoCV
+## this forces rebuild each time, when build arg is set to date
+ARG DUMMY=unknown
+RUN DUMMY=${DUMMY} pip install git+https://github.com/poldrack/autoCV
+
 WORKDIR /data
 CMD ["/usr/bin/xelatex", "autocv_template.tex"]

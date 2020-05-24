@@ -39,8 +39,9 @@ guard-%:
     exit 1; \
     fi
 
+# use build arg to force installation of latest package from github
 docker-build: guard-DOCKER_USERNAME
-	docker build -t $(DOCKER_USERNAME)/latex-python .
+	docker build --build-arg DUMMY=`date +%s` -t $(DOCKER_USERNAME)/latex-python .
 
 docker-deploy: docker-login docker-upload
 
