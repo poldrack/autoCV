@@ -51,10 +51,7 @@ docker-upload: guard-DOCKER_USERNAME
 	docker push $(DOCKER_USERNAME)/latex-python
 
 shell: guard-DOCKER_USERNAME
-	docker run -it -v $(current_dir):/data  $(DOCKER_USERNAME)/latex-python
-
-shell: guard-DOCKER_USERNAME
-	docker run -it -v $(current_dir):/data  $(DOCKER_USERNAME)/latex-python
+	docker run --entrypoint /bin/bash -it -v $(current_dir):/data  $(DOCKER_USERNAME)/latex-python
 
 render: guard-DOCKER_USERNAME
 	docker run -it -v $(current_dir):/data  $(DOCKER_USERNAME)/latex-python
