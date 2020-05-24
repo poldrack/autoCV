@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 descr = """autoCV: An automated CV generator"""
 
-DISTNAME = "autoCV"
+DISTNAME = "autocv"
 DESCRIPTION = descr
 MAINTAINER = 'Russ Poldrack'
 MAINTAINER_EMAIL = 'poldrack@stanford.edu'
@@ -24,9 +24,9 @@ def check_dependencies():
     needed_deps = [
         "pandas",
         "numpy",
-        "biopython",
+        "Bio",
         "requests",
-        "crossrefapi",
+        "crossref",
         "scholarly",
         "pypatent",
         "pytest"]
@@ -65,7 +65,8 @@ if __name__ == "__main__":
           download_url=DOWNLOAD_URL,
           packages=find_packages(),
           scripts=[
-              'bin/make_cv.py'],
+              'bin/make_cv.py',
+              'bin/autoCV'],
           classifiers=[
               'Intended Audience :: Science/Research',
               'Programming Language :: Python :: 3.6',
