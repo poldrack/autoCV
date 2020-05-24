@@ -24,6 +24,7 @@ clean:
 	- rm service.tex
 	- rm talks.tex
 	- rm teaching.tex
+	- rm default.profraw
 
 	
 cv-local:
