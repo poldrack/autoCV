@@ -6,20 +6,19 @@ Russ Poldrack, May 2020
 """
 
 from Bio import Entrez
-from autocv import get_params, get_orcid_data, get_orcid_education,\
+from autocv.autocv import get_params, get_orcid_data, get_orcid_education,\
     get_orcid_employment, get_orcid_distinctions, get_orcid_memberships,\
     get_orcid_service, get_orcid_dois
-from autocv import get_funding_from_csv, get_teaching, get_patents,\
+from autocv.autocv import get_funding_from_csv, get_teaching, get_patents,\
     drop_excluded_pubs, add_additional_pubs_from_csv, get_links
-from autocv import render_education, render_distinctions,\
+from autocv.autocv import render_education, render_distinctions,\
     render_employment, render_memberships,\
     render_service, render_funding, render_teaching, \
     render_editorial, render_heading, render_patents, render_pubs
-from autocv import get_google_scholar_record
-from autocv import get_pubmed_records, get_pubmed_pubs
-from autocv import get_crossref_records, process_crossref_records
-
-from autocv import write_pubs, write_presentations, write_talks
+from autocv.autocv import get_google_scholar_record
+from autocv.autocv import get_pubmed_records, get_pubmed_pubs
+from autocv.autocv import get_crossref_records, process_crossref_records
+from autocv.autocv import write_pubs, write_presentations, write_talks
 
 if __name__ == "__main__":
 
