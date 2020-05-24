@@ -189,6 +189,7 @@ def get_orcid_dois(orcid_data):
 
 # get records for pubs in PubMed
 def get_pubmed_records(params):
+    Entrez.email = params['email']
     print(f'using {params["email"]} for Entrez service')
     query = params['query']
     print('searching for', query)
