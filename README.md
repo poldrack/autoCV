@@ -22,16 +22,16 @@ Using it requires that the user first enter some relevant information into their
 
 In addition, it requires generating several CSV files containing other information that is not well organized or available within ORCID:
 
-* **[conference.csv](conference.csv)**: Conference presentations
-* **[talks.csv](talks.csv)**: Colloquium and other talks
-* **[funding.csv](funding.csv)**: Grants and other funding
-* **[editorial.csv](editorial.csv)**: Editorial duties and reviewing
-* **[additional_pubs.csv](additional_pubs.csv)**: Publications that are not found in PubMed/ORCID (including books, book chapters, and conference proceedings - note that ORCID allows addition of books but the metadata are a bit screwy, so I prefer entering them manually in this file)
-* **[teaching.csv](teaching.csv)**: Courses taught
+* **[conference.csv](tests/conference.csv)**: Conference presentations
+* **[talks.csv](tests/talks.csv)**: Colloquium and other talks
+* **[funding.csv](tests/funding.csv)**: Grants and other funding
+* **[editorial.csv](tests/editorial.csv)**: Editorial duties and reviewing
+* **[additional_pubs.csv](tests/additional_pubs.csv)**: Publications that are not found in PubMed/ORCID (including books, book chapters, and conference proceedings - note that ORCID allows addition of books but the metadata are a bit screwy, so I prefer entering them manually in this file)
+* **[teaching.csv](tests/teaching.csv)**: Courses taught
 
-It also allows addition of links to any reference using a csv file called **[links.csv](links.csv)**.
+It also allows addition of links to any reference using a csv file called **[links.csv](tests/links.csv)**.
 
-Finally, you will need to generate a json file called params.json that contains some metadata about you - see example [here](params.json).
+Finally, you will need to generate a json file called params.json that contains some metadata about you - see example [here](tests/params.json).
 
 You will need to take a look at the examples of these files in the repository to see their structure.
 
