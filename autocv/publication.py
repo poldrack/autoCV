@@ -7,8 +7,8 @@ import string
 import hashlib
 import json
 
-from apis import get_pubmed_records, get_orcid_data, get_orcid_dois, get_crossref_records
-from researcher import Researcher
+from .apis import get_crossref_records
+from .researcher import Researcher
 
 
 def parse_crossref_record(record, verbose=False, exclude_preprints=True,
@@ -53,9 +53,8 @@ def parse_crossref_record(record, verbose=False, exclude_preprints=True,
             pub[field] = f
 
     # filter out pages with n/a
-    if 'page' in pub:
-        if pub['page'].find('n/a') > -1:
-            del pub['page']
+    if 'page' in pub and pub['page'].find('n/a') > -1:
+        del pub['page']
 
     # get the title
     if len(record['container-title']) > 0:
@@ -93,6 +92,7 @@ def parse_crossref_record(record, verbose=False, exclude_preprints=True,
 def get_random_hash(length=16):
     return(''.join(random.choice(string.ascii_lowercase) for i in range(length)))
 
+
 def serialize_pubs_to_json(pubs, outfile):
     """
     save a list of publications to json
@@ -100,9 +100,10 @@ def serialize_pubs_to_json(pubs, outfile):
     parameters:
     -----------
     pubs: a list of Publication objects
+    outfile: string, filename to save to
     """
 
-    # first combine into a single dictionary 
+    # first combine into a single dictionary
     pubdict = {}
     for p in pubs:
         if p.hash in pubdict:
@@ -111,14 +112,15 @@ def serialize_pubs_to_json(pubs, outfile):
         pubdict[p.hash] = vars(p)
     with open(outfile, 'w') as f:
         json.dump(pubdict, f)
+    return(pubdict)
+
 
 def load_pubs_from_json(infile):
-    pubs = []
+    pubdict = {}
     with open(infile) as f:
         pubdict = json.load(f)
-        for d in pubdict:
-            if pubdict[d]['type'] is 'journal-article':
-                pass
+    return(pubdict)
+
 
 class Publication:
     """
@@ -136,13 +138,14 @@ class Publication:
 
     def get_pub_hash(self, digest_size=8):
         """
-        create a hash from the title, year, and authors for finding duplicates
+        create a hash from the title, year, and authors
+        - used for finding duplicates
         """
         if self.title is None:
             print('reference must first be loaded')
-            return(None)
-        pubstr = '-'.join([str(i) for i in [self.title, self.year, self.authors]])
-        return(hashlib.blake2b(pubstr.lower().encode('utf-8'), digest_size=digest_size).hexdigest())
+        else:
+            pubstr = '-'.join([str(i) for i in [self.title, self.year, self.authors]])
+            self.hash = hashlib.blake2b(pubstr.lower().encode('utf-8'), digest_size=digest_size).hexdigest()
 
 
 class JournalArticle(Publication):
@@ -174,14 +177,9 @@ class JournalArticle(Publication):
             self.title +\
             ' \\textit{%s' % self.journal
 
-        if self.volume is not None:
-            line += ', %s}' % self.volume
-        else:
-            line += '}'
-
-        if self.page is not None:
-            if len(self.page) > 0:
-                line += ', %s' % self.page
+        line += ', %s}' % self.volume if self.volume is not None else '}'
+        if self.page is not None and len(self.page) > 0:
+            line += ', %s' % self.page
         line += '.'
         self.reference = line
 
@@ -213,16 +211,22 @@ class JournalArticle(Publication):
             self.year = int(pubmed_record['MedlineCitation']['Article'][
                 'Journal']['JournalIssue']['PubDate']['MedlineDate'].split(' ')[0])
         if 'Volume' in pubmed_record['MedlineCitation']['Article']['Journal']['JournalIssue']:
-            self.volume = pubmed_record['MedlineCitation']['Article']['Journal']['JournalIssue']['Volume']
+            self.volume = pubmed_record['MedlineCitation']['Article'][
+                'Journal']['JournalIssue']['Volume']
         self.title = pubmed_record['MedlineCitation']['Article']['ArticleTitle']
 
         if 'Pagination' in pubmed_record['MedlineCitation']['Article']:
             self.page = pubmed_record['MedlineCitation']['Article']['Pagination']['MedlinePgn']
-        authorlist = []
+
         if 'AuthorList' in pubmed_record['MedlineCitation']['Article']:
-            for author in pubmed_record['MedlineCitation']['Article']['AuthorList']:
-                if 'LastName' in author and 'Initials' in author:
-                    authorlist.append(' '.join([author['LastName'], author['Initials']]))
+            authorlist = [
+                ' '.join([author['LastName'], author['Initials']])
+                for author in pubmed_record['MedlineCitation']['Article'][
+                    'AuthorList'
+                ]
+                if 'LastName' in author and 'Initials' in author
+            ]
+
             self.authors = ', '.join(authorlist)
 
 
@@ -230,7 +234,7 @@ if __name__ == "__main__":
     rsrchr = Researcher('../tests/params.json')
 
     # test pubmed
-    pubmed_records = get_pubmed_records('poldrack-r', 'poldrack@stanford.edu')
+    pubmed_records = rsrchr.get_pubmed_records('poldrack-r', 'poldrack@stanford.edu')
     pubmed_publications = []
     pubmed_dois = []
     for r in pubmed_records['PubmedArticle']:
@@ -242,8 +246,8 @@ if __name__ == "__main__":
         pubmed_dois.append(pub.DOI)
 
     # test orcid
-    orcid_data = get_orcid_data(rsrchr.orcid)
-    orcid_dois = get_orcid_dois(orcid_data)
+    orcid_data = rsrchr.get_orcid_data()
+    orcid_dois = rsrchr.get_orcid_dois()
     print('found %d  ORCID dois' % len(orcid_dois))
 
     # load orcid pubs using crossref
@@ -261,3 +265,11 @@ if __name__ == "__main__":
             if p.DOI not in pubmed_dois:
                 crossref_pubs.append(p)
     print('found %d additional pubs from ORCID via crossref' % len(crossref_pubs))
+
+    # test saving
+    pubs = pubmed_publications + crossref_pubs
+    pubs_dict = serialize_pubs_to_json(pubs, 'test.json')
+    pubs_retrieved = load_pubs_from_json('test.json')
+
+    for i in range(len(pubs)):
+        assert pubs[i].__dict__ == pubs_retrieved[i].__dict__
