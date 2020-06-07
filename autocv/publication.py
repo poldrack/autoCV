@@ -7,7 +7,7 @@ import string
 import hashlib
 import json
 
-from .apis import get_crossref_records
+from .crossref import get_crossref_records
 from .researcher import Researcher
 
 
