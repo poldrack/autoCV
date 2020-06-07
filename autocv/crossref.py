@@ -1,10 +1,8 @@
 """
-functions to access various APIs
+functions to access crossref API
 """
 
 from crossref.restful import Works
-import pypatent
-import scholarly
 
 
 def get_crossref_records(dois):
@@ -20,19 +18,73 @@ def get_crossref_records(dois):
     return(crossref_records)
 
 
-def get_google_scholar_record(firstname, lastname):
-    search_query = scholarly.scholarly.search_author(' '.join([firstname, lastname]))
-    author = next(search_query).fill()
-    return(author)
+def process_crossref_records(crossref_records, pubs,
+                             etal_thresh=10, exclude_preprints=True,
+                             exclude_books=True, exclude_translations=True):
+    # use DOI as dictionary keys
+    for r in crossref_records:
+        if exclude_preprints and crossref_records[r]['type'] == 'posted-content':
+            continue
+        # books seem to be goofy with crossref
+        if exclude_books and crossref_records[r]['type'] == 'book':
+            continue
+        if 'author' not in crossref_records[r]:  # can happen for errata
+            print('no author for ', r)
+            continue
+        if 'translator' in crossref_records[r]:
+            continue
 
+        if isinstance(crossref_records[r]['title'], list):
+            crossref_records[r]['title'] = crossref_records[r]['title'][0]
+        if crossref_records[r]['title'].find('Corrigend') > -1:
+            continue
 
-def get_patents(lastname, firstname):
-    results = pypatent.Search(lastname).as_list()
-    mypatents = []
-    for r in results:
-        for i in r['inventors']:
-            fn = i[0].split(' ')[0].lower()
-            ln = i[1].lower()
-            if fn == firstname.lower() and ln == lastname.lower():
-                mypatents.append(r)
-    return(mypatents)
+        if r not in pubs:
+            pubs[r] = {}
+
+        # don't replace pubmed info if it already exists
+        for field in ['title', 'volume', 'page', 'type', 'publisher']:
+            if field in crossref_records[r] and field not in pubs[r]:
+                f = crossref_records[r][field]
+                if isinstance(f, list):
+                    f = f[0]
+                pubs[r][field] = f
+
+        # get the title
+        if 'journal' not in pubs[r] and len(crossref_records[r]['container-title']) > 0:
+            pubs[r]['journal'] = crossref_records[r]['container-title'][0]
+
+        # date can show up in two different places!
+        if 'year' not in pubs[r]:
+            if 'published-print' in crossref_records[r]:
+                year = crossref_records[r]['published-print']['date-parts'][0][0]
+            elif 'journal-issue' in crossref_records[r]:
+                journal_issue = crossref_records[r]['journal-issue']
+                if 'published-print' in journal_issue:
+                    year = journal_issue['published-print']['date-parts'][0][0]
+                else:
+                    year = journal_issue['published-online']['date-parts'][0][0]
+
+            pubs[r]['year'] = int(year)
+
+        # convert author list to pubmed format
+        if 'authors' in pubs[r]:
+            authors = [i.lstrip(' ') for i in pubs[r]['authors'].split(',')]
+        else:
+            authors = []
+            for author in crossref_records[r]['author']:
+                if 'given' not in author or 'family' not in author:
+                    continue
+                given_split = author['given'].split(' ')
+                if len(given_split) > 1:
+                    initials = ''.join([i[0] for i in given_split])
+                else:
+                    initials = given_split[0][0]
+                entry = '%s %s' % (author['family'], initials)
+                authors.append(entry)
+        if len(authors) > etal_thresh:
+            pubs[r]['authors'] = '%s et al.' % authors[0]
+        else:
+            pubs[r]['authors'] = ', '.join(authors)
+        pubs[r]['idType'] = 'DOI'
+    return(pubs)
