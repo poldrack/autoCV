@@ -18,6 +18,84 @@ def get_crossref_records(dois):
     return(crossref_records)
 
 
+def parse_crossref_record(record, verbose=False, exclude_preprints=True,
+                          exclude_books=True, exclude_translations=True):
+    """
+    extract fields from record
+    do this here because these records span multiple publication types
+    """
+    pub = {'DOI': record['DOI']}
+    if exclude_preprints and record['type'] == 'posted-content':
+        if verbose:
+            print('skipping preprint:', record['DOI'])
+        return(None)
+    # books seem to be goofy with crossref
+    if exclude_books and record['type'] == 'book':
+        if verbose:
+            print('skipping book:', record['DOI'])
+        return(None)
+    if 'author' not in record:  # can happen for errata
+        if verbose:
+            print('skipping due to missing author:', record['DOI'])
+        return(None)
+    if 'translator' in record:
+        if verbose:
+            print('skipping translation:', record['DOI'])
+        return(None)
+
+    if isinstance(record['title'], list):
+        record['title'] = record['title'][0]
+
+    if record['title'].find('Corrigend') > -1:
+        if verbose:
+            print('skipping corrigendum:', record['DOI'])
+        return(None)
+
+    # don't replace pubmed info if it already exists
+    for field in ['title', 'volume', 'page', 'type', 'publisher']:
+        if field in record:
+            f = record[field]
+            if isinstance(f, list):
+                f = f[0]
+            pub[field] = f
+
+    # filter out pages with n/a
+    if 'page' in pub and pub['page'].find('n/a') > -1:
+        del pub['page']
+
+    # get the title
+    if len(record['container-title']) > 0:
+        pub['journal'] = record['container-title'][0]
+
+    # date can show up in two different places!
+    if 'published-print' in record:
+        year = record['published-print']['date-parts'][0][0]
+    elif 'journal-issue' in record:
+        journal_issue = record['journal-issue']
+        if 'published-print' in journal_issue:
+            year = journal_issue['published-print']['date-parts'][0][0]
+        else:
+            year = journal_issue['published-online']['date-parts'][0][0]
+
+        pub['year'] = int(year)
+
+    # convert author list to pubmed format
+    authors = []
+    for author in record['author']:
+        if 'given' not in author or 'family' not in author:
+            continue
+        given_split = author['given'].split(' ')
+        if len(given_split) > 1:
+            initials = ''.join([i[0] for i in given_split])
+        else:
+            initials = given_split[0][0]
+        entry = '%s %s' % (author['family'], initials)
+        authors.append(entry)
+    pub['authors'] = ', '.join(authors)
+    pub['source'] = 'Crossref'
+    return(pub)
+
+
 def process_crossref_records(crossref_records, pubs,
                              etal_thresh=10, exclude_preprints=True,
                              exclude_books=True, exclude_translations=True):
