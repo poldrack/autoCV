@@ -4,9 +4,9 @@ using params for Russ Poldrack as test case
 """
 
 import pytest
+import os
 import pkg_resources
 from autocv.researcher import Researcher
-from autocv.publication import Publication
 from autocv.orcid import get_orcid_education
 from autocv.orcid import get_orcid_funding
 from autocv.orcid import get_orcid_employment
@@ -16,16 +16,16 @@ from autocv.orcid import get_orcid_service
 
 # test fixtures to share across tests
 @pytest.fixture(scope="session")
-def publication():
-    p = Publication()
-    return(p)
-
-
-@pytest.fixture(scope="session")
 def researcher():
     param_file = pkg_resources.resource_filename('autocv', 'testdata/params.json')
     r = Researcher(param_file)
     return(r)
+
+
+@pytest.fixture(scope="session")
+def jsonfile(tmpdir_factory):
+    fn = tmpdir_factory.mktemp("data").join("test.json")
+    return(fn)
 
 
 # tests
@@ -88,5 +88,19 @@ def test_orcid_get_service(researcher):
     assert service.shape[0] >= 32
 
 
-def test_publication_class(publication):
-    assert publication is not None
+def test_serialize(researcher):
+    researcher.serialize()
+    assert isinstance(researcher.serialized, dict)
+
+
+def test_to_json(researcher, jsonfile):
+    researcher.to_json(jsonfile)
+    assert os.path.exists(jsonfile)
+
+
+def test_from_json(researcher, jsonfile):
+    researcher_tmp = Researcher(researcher.param_file)
+    researcher_tmp.from_json(jsonfile)
+    # spot check
+    assert len(researcher.pubmed_data['PubmedArticle']) ==\
+        len(researcher_tmp.pubmed_data['PubmedArticle'])
