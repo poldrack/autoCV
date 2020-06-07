@@ -11,9 +11,9 @@ import scholarly
 import pypatent
 
 
-def get_params(params_file='params.json'):
-    if os.path.exists(params_file):
-        with open(params_file) as f:
+def get_params(param_file='params.json'):
+    if os.path.exists(param_file):
+        with open(param_file) as f:
             params = json.load(f)
     else:
         raise FileNotFoundError('Please create a json file called params.json containing the fields email (with your email address), orcid (with your ORCID id) and query (with your pubmed query)- see documentation for help')
@@ -25,8 +25,9 @@ def get_params(params_file='params.json'):
 
 class Researcher:
 
-    def __init__(self, params_file='params.json'):
-        self.load_params(params_file)
+    def __init__(self, param_file='params.json'):
+        self.param_file = param_file
+        self.load_params(param_file)
         self.orcid_data = None
         self.orcid_dois = None
         self.pubmed_data = None
@@ -35,9 +36,9 @@ class Researcher:
         self.patent_data = None
         self.serialized = None
 
-    def load_params(self, params_file):
-        if os.path.exists(params_file):
-            with open(params_file) as f:
+    def load_params(self, param_file):
+        if os.path.exists(param_file):
+            with open(param_file) as f:
                 params = json.load(f)
         else:
             raise FileNotFoundError("""Please create a json file called params.json
@@ -138,5 +139,5 @@ if __name__ == '__main__':
     r.get_patents()
     testfile = 'test.json'
     r.to_json(testfile)
-    r2 = Researcher('autocv/testdata/params.json')
+    r2 = Researcher(r.param_file)
     r2.from_json(testfile)
