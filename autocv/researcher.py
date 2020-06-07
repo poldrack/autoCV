@@ -33,6 +33,7 @@ class Researcher:
         self.crossref_data = None
         self.gscholar_data = None
         self.patent_data = None
+        self.serialized = None
 
     def load_params(self, params_file):
         if os.path.exists(params_file):
@@ -97,12 +98,45 @@ class Researcher:
                 if fn == self.firstname.lower() and ln == self.lastname.lower():
                     self.patent_data.append(r)
 
+    def from_json(self, filename):
+        with open(filename, 'r') as f:
+            serialized = json.load(f)
+        for k in serialized.keys():
+            if hasattr(self, k):
+                setattr(self, k, serialized[k])
+
+    def serialize(self):
+        self.serialized = self.__dict__.copy()
+        if 'gscholar_data' in self.serialized:
+            # need to convert gscholar objects to dicts
+            self.serialized['gscholar_data'] = self.serialized['gscholar_data'].__dict__
+
+            coauthor_data = self.serialized['gscholar_data']['coauthors'].copy()
+            self.serialized['gscholar_data']['coauthors'] = []
+            for k in coauthor_data:
+                self.serialized['gscholar_data']['coauthors'].append(k.__dict__)
+
+            publication_data = self.serialized['gscholar_data']['publications'].copy()
+            self.serialized['gscholar_data']['publications'] = []
+            for k in publication_data:
+                self.serialized['gscholar_data']['publications'].append(k.__dict__)
+
+    def to_json(self, filename):
+        if self.serialized is None:
+            self.serialize()
+        with open(filename, 'w') as f:
+            json.dump(self.serialized, f)
+
 
 if __name__ == '__main__':
-    r = Researcher('../tests/params.json')
+    r = Researcher('autocv/testdata/params.json')
     pprint(vars(r))
     r.get_orcid_data()
     r.get_orcid_dois()
     r.get_pubmed_data()
     r.get_google_scholar_record()
     r.get_patents()
+    testfile = 'test.json'
+    r.to_json(testfile)
+    r2 = Researcher('autocv/testdata/params.json')
+    r2.from_json(testfile)
