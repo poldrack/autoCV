@@ -5,9 +5,13 @@ using params for Russ Poldrack as test case
 
 import pytest
 import pkg_resources
-
 from autocv.researcher import Researcher
 from autocv.publication import Publication
+from autocv.orcid import get_orcid_education
+from autocv.orcid import get_orcid_funding
+from autocv.orcid import get_orcid_employment
+from autocv.orcid import get_orcid_memberships
+from autocv.orcid import get_orcid_service
 
 
 # test fixtures to share across tests
@@ -50,7 +54,38 @@ def test_researcher_get_orcid_dois(researcher):
 def test_researcher_get_google_scholar_record(researcher):
     researcher.get_google_scholar_record()
     # use h index as of June 7, 2020
-    assert len(researcher.orcid_dois) >= 227
+    assert researcher.gscholar_data.hindex >= 112
+
+
+def test_researcher_get_patents(researcher):
+    researcher.get_patents()
+    # use number as of June 7, 2020
+    assert len(researcher.patent_data) >= 1
+
+
+def test_orcid_get_education(researcher):
+    education = get_orcid_education(researcher.orcid_data)
+    assert education.shape[0] >= 3
+
+
+def test_orcid_get_funding(researcher):
+    funding = get_orcid_funding(researcher.orcid_data)
+    assert funding.shape[0] >= 23
+
+
+def test_orcid_get_employment(researcher):
+    employment = get_orcid_employment(researcher.orcid_data)
+    assert employment.shape[0] >= 12
+
+
+def test_orcid_get_memberships(researcher):
+    memberships = get_orcid_memberships(researcher.orcid_data)
+    assert memberships.shape[0] >= 4
+
+
+def test_orcid_get_service(researcher):
+    service = get_orcid_service(researcher.orcid_data)
+    assert service.shape[0] >= 32
 
 
 def test_publication_class(publication):
