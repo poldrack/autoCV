@@ -8,6 +8,7 @@ from pprint import pprint
 import requests
 from Bio import Entrez
 import scholarly
+import pypatent
 
 
 def get_params(params_file='params.json'):
@@ -33,27 +34,26 @@ class Researcher:
         self.gscholar_data = None
         self.patent_data = None
 
-
     def load_params(self, params_file):
         if os.path.exists(params_file):
             with open(params_file) as f:
                 params = json.load(f)
         else:
-            raise FileNotFoundError("""Please create a json file called params.json 
-                                       containing the fields email (with your email address), orcid (with your ORCID id) 
+            raise FileNotFoundError("""Please create a json file called params.json
+                                       containing the fields email (with your email address), orcid (with your ORCID id)
                                        and query (with your pubmed query)- see documentation for help')
                                        """)
         for field in params:
             setattr(self, field, params[field])
 
-
     def get_orcid_data(self):
         resp = requests.get("http://pub.orcid.org/%s" % self.orcid,
-                        headers={'Accept': 'application/orcid+json'})
+                            headers={'Accept': 'application/orcid+json'})
         self.orcid_data = resp.json()
 
-
     def get_orcid_dois(self):
+        if self.orcid_data is None:
+            self.get_orcid_data()
         dois = []
         for g in self.orcid_data['activities-summary']['works']['group']:
             for p in g['work-summary']:
@@ -64,7 +64,6 @@ class Researcher:
                 if doi is not None:
                     dois.append(doi.lower())
         self.orcid_dois = list(set(dois))
-
 
     def get_pubmed_data(self):
         Entrez.email = self.email
@@ -79,19 +78,31 @@ class Researcher:
 
         # load full records
         handle = Entrez.efetch(db="pubmed", id=",".join(['%d' % i for i in pmids]),
-                            retmax=retmax, retmode="xml")
+                               retmax=retmax, retmode="xml")
         self.pubmed_data = Entrez.read(handle)
         print('retrieved %d full pubmed records' % len(self.pubmed_data['PubmedArticle']))
-
 
     def get_google_scholar_record(self):
         search_query = scholarly.scholarly.search_author(
             ' '.join([self.firstname, self.lastname]))
         self.gscholar_data = next(search_query).fill()
 
-    
+    def get_patents(self):
+        results = pypatent.Search(self.lastname).as_list()
+        self.patent_data = []
+        for r in results:
+            for i in r['inventors']:
+                fn = i[0].split(' ')[0].lower()
+                ln = i[1].lower()
+                if fn == self.firstname.lower() and ln == self.lastname.lower():
+                    self.patent_data.append(r)
+
+
 if __name__ == '__main__':
     r = Researcher('../tests/params.json')
     pprint(vars(r))
     r.get_orcid_data()
+    r.get_orcid_dois()
     r.get_pubmed_data()
+    r.get_google_scholar_record()
+    r.get_patents()
