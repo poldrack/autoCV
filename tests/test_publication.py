@@ -45,4 +45,5 @@ def test_article_from_pubmed(pubmed_data):
     for record in pubmed_data['PubmedArticle']:
         j = JournalArticle()
         j.from_pubmed(record)
+        # spot check
         assert j.title == record['MedlineCitation']['Article']['ArticleTitle']
