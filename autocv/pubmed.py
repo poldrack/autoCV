@@ -7,7 +7,7 @@ def parse_pubmed_pubs(pubmed_records):
     pubs = {}
     for i in pubmed_records['PubmedArticle']:
         parsed_record = parse_pubmed_record(i)
-        pubs[parsed_record['doi']] = parsed_record
+        pubs[parsed_record['DOI']] = parsed_record
     return(pubs)
 
 
