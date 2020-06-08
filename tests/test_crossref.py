@@ -22,6 +22,8 @@ def test_get_crossref_records(crossref_records, dois):
     for d in dois:
         assert d in crossref_records
 
+
 def test_parse_crossref_records(crossref_records):
     for record in crossref_records:
         parsed_record = parse_crossref_record(crossref_records[record])
+        assert parsed_record is not None
