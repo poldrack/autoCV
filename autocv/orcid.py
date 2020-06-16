@@ -6,6 +6,19 @@ Russ Poldrack, May 2020
 import pandas as pd
 
 
+def get_dois_from_orcid_record(orcid_data):
+    dois = []
+    for g in orcid_data['activities-summary']['works']['group']:
+        for p in g['work-summary']:
+            doi = None
+            for eid in p['external-ids']['external-id']:
+                if eid['external-id-type'] == 'doi':
+                    doi = eid['external-id-value'].replace('http://dx.doi.org/', '')
+            if doi is not None:
+                dois.append(doi.lower())
+    return(list(set(dois)))
+
+
 def get_orcid_education(orcid_data):
     education_df = pd.DataFrame(columns=['institution', 'degree', 'dept', 'city',
                                          'start_date', 'end_date'])
