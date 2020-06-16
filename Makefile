@@ -67,4 +67,4 @@ pypi:
 	python3 -m twine upload dist/*
 
 test:
-	python -m pytest
+	python -m pytest --cov=autocv
