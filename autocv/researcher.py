@@ -6,21 +6,12 @@ import os
 import json
 from pprint import pprint
 import requests
-from Bio import Entrez
 import scholarly
 import pypatent
-
-
-def get_params(param_file='params.json'):
-    if os.path.exists(param_file):
-        with open(param_file) as f:
-            params = json.load(f)
-    else:
-        raise FileNotFoundError('Please create a json file called params.json containing the fields email (with your email address), orcid (with your ORCID id) and query (with your pubmed query)- see documentation for help')
-    required_fields = ['address', 'lastname', 'firstname', 'email', 'orcid', 'query', 'url', 'phone']
-    for field in required_fields:
-        assert field in params
-    return(params)
+from .orcid import get_dois_from_orcid_record
+from .pubmed import get_pubmed_data
+from .publication import JournalArticle
+from .crossref import get_crossref_records, parse_crossref_record
 
 
 class Researcher:
@@ -35,6 +26,7 @@ class Researcher:
         self.gscholar_data = None
         self.patent_data = None
         self.serialized = None
+        self.publications = None
 
     def load_params(self, param_file):
         if os.path.exists(param_file):
@@ -56,38 +48,52 @@ class Researcher:
     def get_orcid_dois(self):
         if self.orcid_data is None:
             self.get_orcid_data()
-        dois = []
-        for g in self.orcid_data['activities-summary']['works']['group']:
-            for p in g['work-summary']:
-                doi = None
-                for eid in p['external-ids']['external-id']:
-                    if eid['external-id-type'] == 'doi':
-                        doi = eid['external-id-value'].replace('http://dx.doi.org/', '')
-                if doi is not None:
-                    dois.append(doi.lower())
-        self.orcid_dois = list(set(dois))
+        self.orcid_dois = get_dois_from_orcid_record(self.orcid_data)
 
     def get_pubmed_data(self):
-        Entrez.email = self.email
-        print(f'using {self.email} for Entrez service')
-        print('searching for', self.query)
-        retmax = 1000
-        handle = Entrez.esearch(db="pubmed", retmax=retmax, term=self.query)
-        record = Entrez.read(handle)
-        handle.close()
-        pmids = [int(i) for i in record['IdList']]
-        print('found %d matches' % len(pmids))
-
-        # load full records
-        handle = Entrez.efetch(db="pubmed", id=",".join(['%d' % i for i in pmids]),
-                               retmax=retmax, retmode="xml")
-        self.pubmed_data = Entrez.read(handle)
+        self.pubmed_data = get_pubmed_data(self.query, self.email)
         print('retrieved %d full pubmed records' % len(self.pubmed_data['PubmedArticle']))
 
     def get_google_scholar_record(self):
         search_query = scholarly.scholarly.search_author(
             ' '.join([self.firstname, self.lastname]))
         self.gscholar_data = next(search_query).fill()
+    
+    def make_publication_records(self):
+        # test pubmed
+        self.get_pubmed_data()
+        pubmed_dois = []
+        self.publications = {}
+        for r in self.pubmed_data['PubmedArticle']:
+            pub = JournalArticle()
+            pub.from_pubmed(r)
+            pub.format_reference_latex()
+            pub.hash = pub.get_pub_hash()
+            self.publications[pub.DOI] = pub
+            # keep track of pubmed DOIs so that we 
+            # don't overwrite with crossref
+            pubmed_dois.append(pub.DOI)
+
+        if self.orcid_data is None:
+            self.get_orcid_data()
+        if self.orcid_dois is None:
+            self.get_orcid_dois()
+        print('found %d  ORCID dois' % len(self.orcid_dois))
+
+        # load orcid pubs using crossref
+        self.crossref_data = get_crossref_records(self.orcid_dois)
+        print('found %d crossref records' % len(self.crossref_data))
+
+        for c in self.crossref_data:
+            d = parse_crossref_record(self.crossref_data[c])
+            if d is not None:
+                p = JournalArticle()
+                p.from_dict(d)
+                # p.format_reference_latex()
+                p.hash = p.get_pub_hash()
+                if p.DOI not in pubmed_dois:
+                    self.publications[p.DOI] = p
+        print('found %d additional pubs from ORCID via crossref' % (len(self.publications) - len(pubmed_dois)))
 
     def get_patents(self):
         results = pypatent.Search(self.lastname).as_list()
@@ -130,13 +136,17 @@ class Researcher:
 
 
 if __name__ == '__main__':
-    r = Researcher('autocv/testdata/params.json')
+    r = Researcher('testdata/params.json')
     pprint(vars(r))
     r.get_orcid_data()
     r.get_orcid_dois()
     r.get_pubmed_data()
     r.get_google_scholar_record()
     r.get_patents()
+    r.make_publication_records()
+
+    # load the publications
+    
     testfile = 'test.json'
     r.to_json(testfile)
     r2 = Researcher(r.param_file)
