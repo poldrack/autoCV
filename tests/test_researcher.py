@@ -88,6 +88,11 @@ def test_orcid_get_service(researcher):
     assert service.shape[0] >= 32
 
 
+def test_make_publication_records(researcher):
+    researcher.make_publication_records()
+    assert len(researcher.publications) >= 280
+
+
 def test_serialize(researcher):
     researcher.serialize()
     assert isinstance(researcher.serialized, dict)
