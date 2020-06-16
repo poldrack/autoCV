@@ -8,7 +8,7 @@ import hashlib
 import json
 
 from .crossref import get_crossref_records, parse_crossref_record
-from .researcher import Researcher
+#from .researcher import Researcher
 from .pubmed import parse_pubmed_record
 
 
