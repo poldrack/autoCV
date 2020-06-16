@@ -8,7 +8,6 @@ import hashlib
 import json
 
 from .crossref import get_crossref_records, parse_crossref_record
-#from .researcher import Researcher
 from .pubmed import parse_pubmed_record
 
 
@@ -69,6 +68,9 @@ class Publication:
         else:
             pubstr = '-'.join([str(i) for i in [self.title, self.year, self.authors]])
             self.hash = hashlib.blake2b(pubstr.lower().encode('utf-8'), digest_size=digest_size).hexdigest()
+    
+    def to_json(self):
+        return(vars(self))
 
 
 class JournalArticle(Publication):
