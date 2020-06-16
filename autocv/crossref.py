@@ -24,6 +24,10 @@ def parse_crossref_record(record, verbose=False, exclude_preprints=True,
     extract fields from record
     do this here because these records span multiple publication types
     """
+    if 'DOI' not in record:
+        print('no DOI found in crossref record - skipping')
+        print(record)
+        return(None)
     pub = {'DOI': record['DOI']}
     if exclude_preprints and record['type'] == 'posted-content':
         if verbose:
