@@ -4,14 +4,14 @@ class for a researcher
 
 import os
 import json
-from pprint import pprint
 import requests
 import scholarly
 import pypatent
 from .orcid import get_dois_from_orcid_record
 from .pubmed import get_pubmed_data
-from .publication import JournalArticle
+from .publication import JournalArticle, get_random_hash
 from .crossref import get_crossref_records, parse_crossref_record
+from .latex import render_latex
 
 
 class Researcher:
@@ -27,6 +27,7 @@ class Researcher:
         self.patent_data = None
         self.serialized = None
         self.publications = None
+        self.rendered_latex = None
 
     def load_params(self, param_file):
         if os.path.exists(param_file):
@@ -58,7 +59,7 @@ class Researcher:
         search_query = scholarly.scholarly.search_author(
             ' '.join([self.firstname, self.lastname]))
         self.gscholar_data = next(search_query).fill()
-    
+
     def make_publication_records(self):
         # test pubmed
         self.get_pubmed_data()
@@ -70,7 +71,7 @@ class Researcher:
             pub.format_reference_latex()
             pub.hash = pub.get_pub_hash()
             self.publications[pub.DOI] = pub
-            # keep track of pubmed DOIs so that we 
+            # keep track of pubmed DOIs so that we
             # don't overwrite with crossref
             pubmed_dois.append(pub.DOI)
 
@@ -128,26 +129,17 @@ class Researcher:
             for k in publication_data:
                 self.serialized['gscholar_data']['publications'].append(k.__dict__)
 
+            self.serialized['publications'] = {}
+            for k in self.publications:
+                if self.publications[k].hash is None:
+                    self.publications[k].hash = get_random_hash()
+                self.serialized['publications'][self.publications[k].hash] = self.publications[k].to_json()
+
     def to_json(self, filename):
         if self.serialized is None:
             self.serialize()
         with open(filename, 'w') as f:
             json.dump(self.serialized, f)
 
-
-if __name__ == '__main__':
-    r = Researcher('testdata/params.json')
-    pprint(vars(r))
-    r.get_orcid_data()
-    r.get_orcid_dois()
-    r.get_pubmed_data()
-    r.get_google_scholar_record()
-    r.get_patents()
-    r.make_publication_records()
-
-    # load the publications
-    
-    testfile = 'test.json'
-    r.to_json(testfile)
-    r2 = Researcher(r.param_file)
-    r2.from_json(testfile)
+    def render_latex_cv(self):
+        self.rendered_latex = render_latex(self)
