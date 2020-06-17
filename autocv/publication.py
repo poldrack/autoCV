@@ -6,7 +6,6 @@ import hashlib
 import json
 
 from .utils import get_random_hash
-from .crossref import get_crossref_records, parse_crossref_record
 from .pubmed import parse_pubmed_record
 
 
@@ -186,48 +185,3 @@ class Book(Publication):
             self.publisher.strip(' ')
         line += '.'
         return(line)
-
-
-if __name__ == "__main__":
-    rsrchr = Researcher('../tests/params.json')
-
-    # test pubmed
-    pubmed_records = rsrchr.get_pubmed_records('poldrack-r', 'poldrack@stanford.edu')
-    pubmed_publications = []
-    pubmed_dois = []
-    for r in pubmed_records['PubmedArticle']:
-        pub = JournalArticle()
-        pub.from_pubmed(r)
-        pub.format_reference_latex()
-        pub.hash = pub.get_pub_hash()
-        pubmed_publications.append(pub)
-        pubmed_dois.append(pub.DOI)
-
-    # test orcid
-    orcid_data = rsrchr.get_orcid_data()
-    orcid_dois = rsrchr.get_orcid_dois()
-    print('found %d  ORCID dois' % len(orcid_dois))
-
-    # load orcid pubs using crossref
-    crossref_records = get_crossref_records(orcid_dois)
-    print('found %d crossref records' % len(crossref_records))
-
-    crossref_pubs = []
-    for c in crossref_records:
-        d = parse_crossref_record(crossref_records[c])
-        if d is not None:
-            p = JournalArticle()
-            p.from_dict(d)
-            # p.format_reference_latex()
-            p.hash = p.get_pub_hash()
-            if p.DOI not in pubmed_dois:
-                crossref_pubs.append(p)
-    print('found %d additional pubs from ORCID via crossref' % len(crossref_pubs))
-
-    # test saving
-    pubs = pubmed_publications + crossref_pubs
-    pubs_dict = serialize_pubs_to_json(pubs, 'test.json')
-    pubs_retrieved = load_pubs_from_json('test.json')
-
-    for i in range(len(pubs)):
-        assert pubs[i].__dict__ == pubs_retrieved[i].__dict__
