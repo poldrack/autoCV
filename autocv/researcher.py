@@ -11,14 +11,15 @@ from .orcid import get_dois_from_orcid_record
 from .pubmed import get_pubmed_data
 from .publication import JournalArticle, get_random_hash
 from .crossref import get_crossref_records, parse_crossref_record
-from .latex import render_latex
+from .utils import get_additional_pubs_from_csv, NpEncoder
 
 
 class Researcher:
 
-    def __init__(self, param_file='params.json'):
+    def __init__(self, param_file='params.json', basedir=None):
         self.param_file = param_file
         self.load_params(param_file)
+        self.basedir = os.path.dirname(param_file) if basedir is None else basedir
         self.orcid_data = None
         self.orcid_dois = None
         self.pubmed_data = None
@@ -96,6 +97,14 @@ class Researcher:
                     self.publications[p.DOI] = p
         print('found %d additional pubs from ORCID via crossref' % (len(self.publications) - len(pubmed_dois)))
 
+        additional_pubs_file = os.path.join(
+            self.basedir, 'additional_pubs.csv'
+        )
+        additional_pubs = get_additional_pubs_from_csv(additional_pubs_file)
+        for p in additional_pubs:
+            self.publications[p] = JournalArticle()
+            self.publications[p].from_dict(additional_pubs[p])
+
     def get_patents(self):
         results = pypatent.Search(self.lastname).as_list()
         self.patent_data = []
@@ -108,10 +117,17 @@ class Researcher:
 
     def from_json(self, filename):
         with open(filename, 'r') as f:
-            serialized = json.load(f)
+            serialized = json.load(f) #, cls=NpEncoder)
         for k in serialized.keys():
             if hasattr(self, k):
-                setattr(self, k, serialized[k])
+                print('ingesting', k)
+                if k == 'publications':
+                    self.publications = {}
+                    for pub in serialized[k]:
+                        self.publications[pub] = JournalArticle()
+                        self.publications[pub].from_dict(serialized[k][pub])
+                else:
+                    setattr(self, k, serialized[k])
 
     def serialize(self):
         self.serialized = self.__dict__.copy()
@@ -129,17 +145,14 @@ class Researcher:
             for k in publication_data:
                 self.serialized['gscholar_data']['publications'].append(k.__dict__)
 
-            self.serialized['publications'] = {}
-            for k in self.publications:
-                if self.publications[k].hash is None:
-                    self.publications[k].hash = get_random_hash()
-                self.serialized['publications'][self.publications[k].hash] = self.publications[k].to_json()
+        self.serialized['publications'] = {}
+        for k in self.publications:
+#                if self.publications[k].hash is None:
+#                    self.publications[k].hash = get_random_hash()
+            self.serialized['publications'][k] = self.publications[k].to_json()
 
     def to_json(self, filename):
         if self.serialized is None:
             self.serialize()
         with open(filename, 'w') as f:
-            json.dump(self.serialized, f)
-
-    def render_latex_cv(self):
-        self.rendered_latex = render_latex(self)
+            json.dump(self.serialized, f, cls=NpEncoder)
