@@ -32,6 +32,13 @@ def serialize_pubs_to_json(pubs, outfile):
     return(pubdict)
 
 
+def shorten_authorlist(authors, maxlen=10, n_to_show=3):
+    authors_split = authors.split(',')
+    if len(authors_split) > maxlen:
+        authors = ','.join(authors_split[:n_to_show]) + ' et al.'
+    return authors
+
+
 def load_pubs_from_json(infile):
     pubdict = {}
     with open(infile) as f:
@@ -45,12 +52,13 @@ class Publication:
 
     type = 'generic'
 
-    def __init__(self, title=None, year=None, authors=None):
+    def __init__(self, title=None, year=None, authors=None, etalthresh=10):
 
         # set up general feature attributes
         self.title = title
         self.year = year
         self.authors = authors
+        self.etalthresh = etalthresh
         self.hash = None
 
     def get_pub_hash(self, digest_size=8):
@@ -91,12 +99,18 @@ class JournalArticle(Publication):
         self.reference = None
         self.source = None
 
-    def format_reference_latex(self):
+    def format_reference_latex(self, etalthresh=None, etalnum=None):
+        if etalthresh is None:
+            etalthresh = self.etalthresh
+        if etalnum is None:
+            etalnum = self.etalnum
+
         if self.title is None:
             print('reference must be loaded before formatting')
             return
+        authors_shortened = shorten_authorlist(self.authors, etalthresh, etalnum)
 
-        line = self.authors +\
+        line = authors_shortened +\
             ' (%d). ' % self.year +\
             self.title +\
             ' \\textit{%s' % self.journal
@@ -132,7 +146,7 @@ class BookChapter(Publication):
         self.publisher = publisher
         self.editors = editors
 
-    def format_reference_latex(self):
+    def format_reference_latex(self, etalthresh=None, etalnum=None):
         if self.title is None:
             print('reference must be loaded before formatting')
             return
@@ -166,7 +180,7 @@ class Book(Publication):
         self.publisher = publisher
         self.editors = editors
 
-    def format_reference_latex(self):
+    def format_reference_latex(self, etalthresh=None, etalnum=None):
         if self.title is None:
             print('reference must be loaded before formatting')
             return
