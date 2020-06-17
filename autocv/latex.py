@@ -13,10 +13,12 @@ from autocv.utils import get_pubs_by_year, get_keys_sorted_by_author, escape_cha
 
 class LatexCV:
 
-    def __init__(self, researcher, font='TeX Gyre Termes'):
+    def __init__(self, researcher, font='TeX Gyre Termes', etalthresh=10, etalnum=3):
         assert len(researcher.publications) > 0
         self.researcher = researcher
         self.font = font
+        self.etalthresh = etalthresh
+        self.etalnum = etalnum
         self.sections_to_write = [
             'heading', 'education', 'employment', 'distinctions',
             'editorial', 'memberships', 'service',
@@ -236,8 +238,13 @@ class LatexCV:
 
         years = list({self.researcher.publications[i].year for i in self.researcher.publications})
         years.sort(reverse=True)
+        if hasattr(self.researcher, 'gscholar'):
+            hindex = self.researcher.gscholar.hindex
+        elif hasattr(self.researcher, 'gscholar_data'):
+            # loaded from json
+            hindex = self.researcher.gscholar_data['hindex']
 
-        self.publications = '\\section*{Publications (Google Scholar H-index = %d)}' % self.researcher.gscholar.hindex
+        self.publications = '\\section*{Publications (Google Scholar H-index = %d)}' % hindex
 
         for year in years:
             self.publications += '\\subsection*{%s}' % year
@@ -250,10 +257,10 @@ class LatexCV:
             for pub in keys_sorted_by_author:
                 self.researcher.publications[pub] = escape_characters_for_latex(self.researcher.publications[pub])
 
-                line = self.researcher.publications[pub].format_reference_latex()
+                line = self.researcher.publications[pub].format_reference_latex(self.etalthresh, self.etalnum)
 
-                if 'PMC' in self.researcher.publications[pub] and self.researcher.publications[pub]['PMC'] is not None:
-                    line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % self.researcher.publications[pub]['PMC']
+                if hasattr(self.researcher.publications[pub], 'PMC') and self.researcher.publications[pub].PMC is not None:
+                    line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % self.researcher.publications[pub].PMC
 
                 for linktype in links:
                     if pub in links[linktype]:
@@ -261,8 +268,42 @@ class LatexCV:
                             links[linktype][pub], linktype)
 
                 # TBD: need to filter out non-DOIs
-                if self.researcher.publications[pub]['type'] not in ['book', 'monograph'] and 'DOI' in self.researcher.publications[pub]:
-                    line += ' \\href{http://dx.doi.org/%s}{DOI}' % self.researcher.publications[pub]['DOI']
+                if self.researcher.publications[pub].type not in ['book', 'monograph'] and hasattr(self.researcher.publications[pub], 'DOI'):
+                    line += ' \\href{http://dx.doi.org/%s}{DOI}' % self.researcher.publications[pub].DOI
 
-                line += ' \\vspace{2mm}\\n'
+                line += ' \\vspace{2mm}\n\n'
                 self.publications += line
+
+    def render_presentations(self, presentations_filename='conference.csv'):
+        presentations_file = os.path.join(self.researcher.basedir, presentations_filename)
+        if os.path.exists(presentations_file):
+            presentations = pd.read_csv(presentations_file, index_col=0)
+        else:
+            return
+
+        presentations = presentations.sort_values('year', ascending=False)
+
+        self.presentations = '\\section*{Conference Presentations}\n\\noindent\n\n'
+
+        for i in presentations.index:
+            entry = presentations.loc[i, :]
+            title = entry.title.strip('.')
+            location = entry.location.strip(' ').strip('.')
+            self.presentations += '%s (%s). \\emph{%s}. %s. \\vspace{2mm}\n\n' % (
+                entry.authors, entry.year, title, location)
+
+    def render_talks(self, talks_filename='talks.csv'):
+        talks_file = os.path.join(self.researcher.basedir, talks_filename)
+        if os.path.exists(talks_file):
+            talks = pd.read_csv(talks_file, index_col=0)
+        else:
+            return
+        years = list(talks.year.unique())
+        years.sort()
+        years = years[::-1]
+
+        lines = '\\section*{Invited addresses and colloquia (* - talks given virtually)}\n\\noindent\n\n'
+        for y in years:
+            talks_year = talks.query('year == %s' % y)
+            lines += '%s: %s \\vspace{2mm}\n\n' % (y, ','.join(list(talks_year.place)))
+        self.talks = lines
