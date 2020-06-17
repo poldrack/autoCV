@@ -60,7 +60,7 @@ class LatexCV:
         self.heading = '\\setmainfont[Ligatures=TeX]{%s} \n' \
             '\\begin{document} \n' \
             '\\reversemarginpar \n' \
-            '{\LARGE %s %s. %s}\\\\[4mm] \n' \
+            '{\\LARGE %s %s. %s}\\\\[4mm] \n' \
             '\\vspace{-1cm} \n\n' \
             '\\begin{multicols}{2} \n' % (  # noqa
                 self.font,
@@ -83,7 +83,7 @@ class LatexCV:
             self.heading += 'Twitter: %s \\\\\n' % self.researcher.twitter
         self.heading += 'ORCID: \\href{https://orcid.org/%s}{%s} \\\\\n' % (
             self.researcher.orcid, self.researcher.orcid)
-        self.heading += '\end{multicols}\n\n\hrule\n\n'  # noqa
+        self.heading += '\\end{multicols}\n\n\\hrule\n\n'  # noqa
 
     def render_patents(self):
         if self.researcher.patent_data is None or len(self.researcher.patent_data) == 0:
@@ -97,7 +97,7 @@ class LatexCV:
                 authorlist.append('%s %s' % (ln, ''.join(initials)))
             authors = ', '.join(authorlist)
 
-            self.patents += '%s (%s) \\textit{%s} US Patent \# \\href{%s}{%s} \\vspace{2mm}\n\n' % ( # noqa
+            self.patents += '%s (%s) \\textit{%s} US Patent \\# \\href{%s}{%s} \\vspace{2mm}\n\n' % ( # noqa
                 authors,
                 p['patent_date'],
                 p['title'],
