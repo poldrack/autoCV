@@ -4,6 +4,12 @@ create and render CV
 
 import pkg_resources
 import autocv.orcid as orcid
+import os
+import pandas as pd
+from collections import OrderedDict
+from autocv.utils import make_funding_line, get_links
+from autocv.utils import make_book_reference, make_article_reference, make_chapter_reference
+from autocv.utils import get_pubs_by_year, get_keys_sorted_by_author, escape_characters_for_latex
 
 
 class LatexCV:
@@ -138,3 +144,133 @@ class LatexCV:
                 distinctions_df.loc[i, 'title'],
                 distinctions_df.loc[i, 'organization'],
             )
+
+    def render_editorial(self, editorial_filename='editorial.csv'):
+        editorial_file = os.path.join(self.researcher.basedir, editorial_filename)
+        if os.path.exists(editorial_file):
+            editorial_df = pd.read_csv(editorial_file)
+        else:
+            return
+
+        editorial_df = editorial_df.fillna('')
+        editorial_dict = OrderedDict()
+        for i in editorial_df.index:
+            role = editorial_df.loc[i, 'role']
+            if role not in editorial_dict:
+                editorial_dict[role] = []
+            if editorial_df.loc[i, 'dates'] != '':
+                date_string = ' (%s)' % editorial_df.loc[i, 'dates']
+            else:
+                date_string = ''
+            editorial_dict[role].append(editorial_df.loc[i, 'journal'].strip(' ') + date_string)
+
+        self.editorial = '\\section*{Editorial Duties and Reviewing} \n\\noindent \n\n'
+        for i in editorial_dict:
+            self.editorial += '\\textit{%s}: %s \n\n' % (
+                i.strip(' '), ', '.join(editorial_dict[i]))
+
+    def render_service(self):
+        service_df = orcid.get_orcid_service(self.researcher.orcid_data)
+
+        self.service = '\\section*{Service}\n\\noindent\n\n'
+        for i in service_df.index:
+            self.service += '%s, %s, %s-%s \n\n' % (
+                service_df.loc[i, 'role'],
+                service_df.loc[i, 'organization'],
+                service_df.loc[i, 'start_date'],
+                service_df.loc[i, 'end_date'],
+            )
+
+    def render_memberships(self):
+        memberships_df = orcid.get_orcid_memberships(self.researcher.orcid_data)
+        self.memberships = '\\section*{Professional societies}\n\\noindent\n\n'
+        self.memberships += ', '.join(memberships_df.organization) + '\n\n'
+
+    def render_teaching(self, teaching_filename='teaching.csv'):
+        teaching_file = os.path.join(self.researcher.basedir, teaching_filename)
+        if os.path.exists(teaching_file):
+            teaching_df = pd.read_csv(teaching_file)
+        else:
+            return
+
+        teaching_dict = OrderedDict()
+        for i in teaching_df.index:
+            coursetype = teaching_df.loc[i, 'type']
+            if coursetype not in teaching_dict:
+                teaching_dict[coursetype] = []
+            teaching_dict[coursetype].append(teaching_df.loc[i, 'name'])
+
+        self.teaching = '\\section*{Teaching}\n\\noindent\n\n'
+        for i in teaching_dict:
+            self.teaching += '\\textit{%s}: %s \\vspace{2mm}\n\n' % (i, ', '.join(teaching_dict[i]))
+
+    def render_funding(self, funding_filename='funding.csv', abbreviate=True):
+        funding_file = os.path.join(self.researcher.basedir, funding_filename)
+        if os.path.exists(funding_file):
+            funding_df = pd.read_csv(funding_file).fillna('')
+        else:
+            return
+
+        self.funding = '\\section*{Research funding}\n\\noindent\n\n'
+        
+        self.funding += '\\subsection*{Active:}\n\n'
+
+        active_pi_funding = funding_df.query('active == True and role == "Principal Investigator"')
+        for i in active_pi_funding.index:
+            line = make_funding_line(active_pi_funding, i, abbreviate)
+            self.funding += '%s \\vspace{2mm}\n\n' % line
+
+        active_coi_funding = funding_df.query('active == True and role != "Principal Investigator"')
+        for i in active_coi_funding.index:
+            line = make_funding_line(active_coi_funding, i, abbreviate)
+            self.funding += '%s \\vspace{2mm}\n\n' % line
+
+        self.funding += '\\subsection*{Completed:}\n\n'
+        completed_funding = funding_df.query('active == False')
+        for i in completed_funding.index:
+            line = make_funding_line(completed_funding, i, abbreviate)
+            self.funding += '%s \\vspace{2mm}\n\n' % line
+
+    def render_publications(self):
+        linkfile = os.path.join(self.researcher.basedir, 'links.csv')
+        links = get_links(linkfile)
+
+        years = list({self.researcher.publications[i].year for i in self.researcher.publications})
+        years.sort(reverse=True)
+
+        self.publications = '\\section*{Publications (Google Scholar H-index = %d)}' % self.researcher.gscholar.hindex
+
+        for year in years:
+            self.publications += '\\subsection*{%s}' % year
+
+            year_pubs = get_pubs_by_year(self.researcher.publications, year)
+
+            keys_sorted_by_author = get_keys_sorted_by_author(year_pubs)
+
+            # get the reference line for each
+            for pub in keys_sorted_by_author:
+                self.researcher.publications[pub] = escape_characters_for_latex(self.researcher.publications[pub])
+
+                if self.researcher.publications[pub]['type'] in ['book', 'monograph']:
+                    line = make_book_reference(self.researcher.publications[pub])
+                elif self.researcher.publications[pub]['type'] == 'book-chapter':
+                    line = make_chapter_reference(self.researcher.publications[pub])
+                elif self.researcher.publications[pub]['type'] in ['proceedings-article', 'journal-article']:
+                    line = make_article_reference(self.researcher.publications[pub])
+                else:
+                    continue
+
+                if 'PMC' in self.researcher.publications[pub] and self.researcher.publications[pub]['PMC'] is not None:
+                    line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % self.researcher.publications[pub]['PMC']
+
+                for linktype in links:
+                    if pub in links[linktype]:
+                        line += ' \\href{%s}{%s}' % (
+                            links[linktype][pub], linktype)
+
+                # TBD: need to filter out non-DOIs
+                if self.researcher.publications[pub]['type'] not in ['book', 'monograph'] and 'DOI' in self.researcher.publications[pub]:
+                    line += ' \\href{http://dx.doi.org/%s}{DOI}' % self.researcher.publications[pub]['DOI']
+
+                line += ' \\vspace{2mm}\\n'
+                self.publications += line
