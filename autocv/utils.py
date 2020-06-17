@@ -143,40 +143,6 @@ def get_additional_pubs_from_csv(pubfile):
     return(pubs)
 
 
-def make_article_reference(pub):
-    line = pub.authors +\
-        ' (%s). ' % pub.year +\
-        pub.title +\
-        ' \\textit{%s' % pub.journal
-    line += ', %s}' % pub.volume if hasattr(pub, 'volume') else '}'
-    if hasattr(pub, 'page') and len(pub.page) > 0:
-        line += ', %s' % pub.page
-    line += '.'
-    return(line)
-
-
-def make_chapter_reference(pub):
-    page_string = ''
-    if hasattr(pub, 'page') and len(pub.page) > 0:
-        page_string = '(p. %s). ' % pub.page
-    return pub.authors +\
-        ' (%s). ' % pub.year +\
-        pub.title +\
-        '. In \\textit{%s.} %s%s.' % (
-            pub.journal,
-            page_string,
-            pub.publisher.strip(' '))
-
-
-def make_book_reference(pub):
-    line = pub['authors'] +\
-        ' (%s). ' % pub['year'] +\
-        ' \\textit{%s}. ' % pub['title'].strip(' ').strip('.') + \
-        pub['publisher'].strip(' ')
-    line += '.'
-    return(line)
-
-
 def get_pubs_by_year(pubs, year):
     year_pubs = {}
     for p in pubs:
