@@ -242,7 +242,10 @@ class LatexCV:
             hindex = self.researcher.gscholar.hindex
         elif hasattr(self.researcher, 'gscholar_data'):
             # loaded from json
-            hindex = self.researcher.gscholar_data['hindex']
+            try:
+                hindex = self.researcher.gscholar_data['hindex']
+            except TypeError:
+                hindex = self.researcher.gscholar_data.hindex
 
         self.publications = '\\section*{Publications (Google Scholar H-index = %d)}' % hindex
 
