@@ -99,11 +99,7 @@ class JournalArticle(Publication):
         self.reference = None
         self.source = None
 
-    def format_reference_latex(self, etalthresh=None, etalnum=None):
-        if etalthresh is None:
-            etalthresh = self.etalthresh
-        if etalnum is None:
-            etalnum = self.etalnum
+    def format_reference_latex(self, etalthresh=10, etalnum=3):
 
         if self.title is None:
             print('reference must be loaded before formatting')
