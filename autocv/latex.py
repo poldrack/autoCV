@@ -8,7 +8,6 @@ import os
 import pandas as pd
 from collections import OrderedDict
 from autocv.utils import make_funding_line, get_links
-from autocv.utils import make_book_reference, make_article_reference, make_chapter_reference
 from autocv.utils import get_pubs_by_year, get_keys_sorted_by_author, escape_characters_for_latex
 
 
@@ -134,7 +133,7 @@ class LatexCV:
                 dept,
                 employment_df.loc[i, 'institution'],
             )
-    
+
     def render_distinctions(self):
         distinctions_df = orcid.get_orcid_distinctions(self.researcher.orcid_data)
         self.distinctions = '\\section*{Honors and Awards}\n\\noindent\n\n'
@@ -212,7 +211,7 @@ class LatexCV:
             return
 
         self.funding = '\\section*{Research funding}\n\\noindent\n\n'
-        
+
         self.funding += '\\subsection*{Active:}\n\n'
 
         active_pi_funding = funding_df.query('active == True and role == "Principal Investigator"')
@@ -251,14 +250,7 @@ class LatexCV:
             for pub in keys_sorted_by_author:
                 self.researcher.publications[pub] = escape_characters_for_latex(self.researcher.publications[pub])
 
-                if self.researcher.publications[pub]['type'] in ['book', 'monograph']:
-                    line = make_book_reference(self.researcher.publications[pub])
-                elif self.researcher.publications[pub]['type'] == 'book-chapter':
-                    line = make_chapter_reference(self.researcher.publications[pub])
-                elif self.researcher.publications[pub]['type'] in ['proceedings-article', 'journal-article']:
-                    line = make_article_reference(self.researcher.publications[pub])
-                else:
-                    continue
+                line = self.researcher.publications[pub].format_reference_latex()
 
                 if 'PMC' in self.researcher.publications[pub] and self.researcher.publications[pub]['PMC'] is not None:
                     line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % self.researcher.publications[pub]['PMC']
