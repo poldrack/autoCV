@@ -124,8 +124,8 @@ def test_latex_cv_class(latexcv):
 
 def test_latex_cv_load_template_files(latexcv):
     latexcv.load_template_files()
-    assert self.front is not None
-    assert self.back is not None
+    assert latexcv.front is not None
+    assert latexcv.back is not None
 
 
 def test_latex_cv_render_latex(latexcv):
@@ -134,7 +134,7 @@ def test_latex_cv_render_latex(latexcv):
         assert hasattr(latexcv, section)
 
 
-def test_latex_cv_write_latex(latexcv, tmpdir_factor):
+def test_latex_cv_write_latex(latexcv, tmpdir_factory):
     outfile = tmpdir_factory.mktemp("data").join("test.tex")
     latexcv.write_latex(outfile)
 
