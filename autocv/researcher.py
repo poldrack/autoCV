@@ -9,9 +9,9 @@ import scholarly
 import pypatent
 from .orcid import get_dois_from_orcid_record
 from .pubmed import get_pubmed_data
-from .publication import JournalArticle, get_random_hash
+from .publication import JournalArticle, Book, BookChapter
 from .crossref import get_crossref_records, parse_crossref_record
-from .utils import get_additional_pubs_from_csv, NpEncoder
+from .utils import get_additional_pubs_from_csv, NpEncoder, get_random_hash
 
 
 class Researcher:
@@ -89,21 +89,45 @@ class Researcher:
         for c in self.crossref_data:
             d = parse_crossref_record(self.crossref_data[c])
             if d is not None:
-                p = JournalArticle()
+                # skip existing pubmed records and preprints
+                if d['DOI'] in pubmed_dois:
+                    continue
+
+                if d['type'] in ['journal-article', 'proceedings-article']:
+                    p = JournalArticle()
+                elif d['type'] in ['book', 'monograph']:
+                    p = Book()
+                elif d['type'] == 'book-chapter':
+                    p = BookChapter()
+                else:
+                    continue
+
                 p.from_dict(d)
-                # p.format_reference_latex()
-                p.hash = p.get_pub_hash()
-                if p.DOI not in pubmed_dois:
-                    self.publications[p.DOI] = p
+                if hasattr(p, 'DOI'):
+                    id = p.DOI
+                elif hasattr(p, 'ISBN'):
+                    id = p.ISBN
+                else:
+                    id = get_random_hash()
+
+                self.publications[id] = p
         print('found %d additional pubs from ORCID via crossref' % (len(self.publications) - len(pubmed_dois)))
 
         additional_pubs_file = os.path.join(
             self.basedir, 'additional_pubs.csv'
         )
         additional_pubs = get_additional_pubs_from_csv(additional_pubs_file)
-        for p in additional_pubs:
-            self.publications[p] = JournalArticle()
-            self.publications[p].from_dict(additional_pubs[p])
+        for pub in additional_pubs:
+            if additional_pubs[pub]['type'] in ['journal-article', 'proceedings-article']:
+                self.publications[pub] = JournalArticle()
+            elif additional_pubs[pub]['type'] in ['book', 'monograph']:
+                self.publications[pub] = Book()
+            elif additional_pubs[pub]['type'] == 'book-chapter':
+                self.publications[pub] = BookChapter()
+            else:
+                print('skipping unknown type', additional_pubs[pub]['type'])
+                continue
+            self.publications[pub].from_dict(additional_pubs[pub])
 
     def get_patents(self):
         results = pypatent.Search(self.lastname).as_list()
@@ -117,14 +141,22 @@ class Researcher:
 
     def from_json(self, filename):
         with open(filename, 'r') as f:
-            serialized = json.load(f) #, cls=NpEncoder)
+            serialized = json.load(f)
         for k in serialized.keys():
             if hasattr(self, k):
                 print('ingesting', k)
                 if k == 'publications':
                     self.publications = {}
                     for pub in serialized[k]:
-                        self.publications[pub] = JournalArticle()
+                        if serialized[k][pub]['type'] in ['journal-article', 'proceedings-article']:
+                            self.publications[pub] = JournalArticle()
+                        elif serialized[k][pub]['type'] in ['book', 'monograph']:
+                            self.publications[pub] = Book()
+                        elif serialized[k][pub]['type'] == 'book-chapter':
+                            self.publications[pub] = BookChapter()
+                        else:
+                            print('skipping unknown type', serialized[k][pub]['type'])
+                            continue
                         self.publications[pub].from_dict(serialized[k][pub])
                 else:
                     setattr(self, k, serialized[k])
@@ -147,12 +179,11 @@ class Researcher:
 
         self.serialized['publications'] = {}
         for k in self.publications:
-#                if self.publications[k].hash is None:
-#                    self.publications[k].hash = get_random_hash()
             self.serialized['publications'][k] = self.publications[k].to_json()
 
     def to_json(self, filename):
         if self.serialized is None:
             self.serialize()
         with open(filename, 'w') as f:
-            json.dump(self.serialized, f, cls=NpEncoder)
+            json.dump(self.serialized, f, cls=NpEncoder,
+                      indent=4)
