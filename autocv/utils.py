@@ -9,6 +9,11 @@ import random
 import string
 import json
 
+
+def get_random_hash(length=16):
+    return(''.join(random.choice(string.ascii_lowercase) for i in range(length)))
+
+
 # from https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable/50916741
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -18,6 +23,8 @@ class NpEncoder(json.JSONEncoder):
             return float(obj)
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
+        elif obj is None:
+            return ''
         else:
             return super(NpEncoder, self).default(obj)
 
@@ -137,28 +144,28 @@ def get_additional_pubs_from_csv(pubfile):
 
 
 def make_article_reference(pub):
-    line = pub['authors'] +\
-        ' (%s). ' % pub['year'] +\
-        pub['title'] +\
-        ' \\textit{%s' % pub['journal']
-    line += ', %s}' % pub['volume'] if 'volume' in pub else '}'
-    if 'page' in pub and len(pub['page']) > 0:
-        line += ', %s' % pub['page']
+    line = pub.authors +\
+        ' (%s). ' % pub.year +\
+        pub.title +\
+        ' \\textit{%s' % pub.journal
+    line += ', %s}' % pub.volume if hasattr(pub, 'volume') else '}'
+    if hasattr(pub, 'page') and len(pub.page) > 0:
+        line += ', %s' % pub.page
     line += '.'
     return(line)
 
 
 def make_chapter_reference(pub):
     page_string = ''
-    if 'page' in pub and len(pub['page']) > 0:
-        page_string = '(p. %s). ' % pub['page']
-    return pub['authors'] +\
-        ' (%s). ' % pub['year'] +\
-        pub['title'] +\
+    if hasattr(pub, 'page') and len(pub.page) > 0:
+        page_string = '(p. %s). ' % pub.page
+    return pub.authors +\
+        ' (%s). ' % pub.year +\
+        pub.title +\
         '. In \\textit{%s.} %s%s.' % (
-            pub['journal'],
+            pub.journal,
             page_string,
-            pub['publisher'].strip(' '))
+            pub.publisher.strip(' '))
 
 
 def make_book_reference(pub):
@@ -173,7 +180,7 @@ def make_book_reference(pub):
 def get_pubs_by_year(pubs, year):
     year_pubs = {}
     for p in pubs:
-        if pubs[p]['year'] == year:
+        if pubs[p].year == year:
             year_pubs[p] = pubs[p]
     return(year_pubs)
 
@@ -181,8 +188,8 @@ def get_pubs_by_year(pubs, year):
 def get_keys_sorted_by_author(pubs):
     author_df = pd.DataFrame({'author': ''}, index=list(pubs.keys()))
     for pub in pubs:
-        if 'authors' in pubs[pub]:
-            author_df.loc[pub, 'author'] = pubs[pub]['authors']
+        if hasattr(pubs[pub], 'authors'):
+            author_df.loc[pub, 'author'] = pubs[pub].authors
         else:
             print('missing author:', pub)
     author_df.sort_values('author', inplace=True)
@@ -190,7 +197,8 @@ def get_keys_sorted_by_author(pubs):
 
 
 def escape_characters_for_latex(pub):
-    for field in pub:
-        if hasattr(pub[field], 'replace'):
-            pub[field] = pub[field].replace(' &', ' \&')  # noqa
+    for field in pub.__dict__.keys():
+        value = getattr(pub, field)
+        if hasattr(value, 'replace'):
+            setattr(pub, field, value.replace(' &', ' \&') ) # noqa
     return(pub)
