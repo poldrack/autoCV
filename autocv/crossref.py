@@ -81,7 +81,7 @@ def parse_crossref_record(record, verbose=False, exclude_preprints=True,
         else:
             year = journal_issue['published-online']['date-parts'][0][0]
 
-        pub['year'] = int(year)
+    pub['year'] = int(year)
 
     # convert author list to pubmed format
     authors = []
