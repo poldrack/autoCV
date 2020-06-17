@@ -2,17 +2,12 @@
 class for publications
 """
 
-import random
-import string
 import hashlib
 import json
 
+from .utils import get_random_hash
 from .crossref import get_crossref_records, parse_crossref_record
 from .pubmed import parse_pubmed_record
-
-
-def get_random_hash(length=16):
-    return(''.join(random.choice(string.ascii_lowercase) for i in range(length)))
 
 
 def serialize_pubs_to_json(pubs, outfile):
@@ -68,7 +63,12 @@ class Publication:
         else:
             pubstr = '-'.join([str(i) for i in [self.title, self.year, self.authors]])
             self.hash = hashlib.blake2b(pubstr.lower().encode('utf-8'), digest_size=digest_size).hexdigest()
-    
+
+    def from_dict(self, pubdict):
+        for k in pubdict:
+            if hasattr(self, k):
+                setattr(self, k, pubdict[k])
+
     def to_json(self):
         return(vars(self))
 
@@ -90,7 +90,6 @@ class JournalArticle(Publication):
         self.links = {}
         self.reference = None
         self.source = None
-        self.type = 'journal-article'
 
     def format_reference_latex(self):
         if self.title is None:
@@ -106,18 +105,77 @@ class JournalArticle(Publication):
         if self.page is not None and len(self.page) > 0:
             line += ', %s' % self.page
         line += '.'
-        self.reference = line
-
-    def from_dict(self, pubdict):
-        for k in pubdict:
-            if hasattr(self, k):
-                setattr(self, k, pubdict[k])
+        return(line)
 
     def from_pubmed(self, pubmed_record):
         parsed_record = parse_pubmed_record(pubmed_record)
         self.source = 'Pubmed'
         for k in parsed_record:
             setattr(self, k, parsed_record[k])
+
+
+class BookChapter(Publication):
+
+    type = 'book-chapter'
+
+    def __init__(self, title=None, year=None, authors=None,
+                 journal=None, page=None, ISBN=None,
+                 publisher=None, editors=None):
+        super().__init__(title, year, authors)
+
+        self.journal = journal
+        self.page = page
+        self.ISBN = ISBN
+        self.links = {}
+        self.reference = None
+        self.source = None
+        self.publisher = publisher
+        self.editors = editors
+
+    def format_reference_latex(self):
+        if self.title is None:
+            print('reference must be loaded before formatting')
+            return
+
+        page_string = ''
+        if hasattr(self, 'page') and len(self.page) > 0:
+            page_string = '(p. %s). ' % self.page
+        return self.authors +\
+            ' (%s). ' % self.year +\
+            self.title.strip('.') +\
+            '. In \\textit{%s.} %s%s.' % (
+                self.journal,
+                page_string,
+                self.publisher.strip(' '))
+
+
+class Book(Publication):
+
+    type = 'book'
+
+    def __init__(self, title=None, year=None, authors=None,
+                 page=None, ISBN=None,
+                 publisher=None, editors=None):
+        super().__init__(title, year, authors)
+
+        self.page = page
+        self.ISBN = ISBN
+        self.links = {}
+        self.reference = None
+        self.source = None
+        self.publisher = publisher
+        self.editors = editors
+
+    def format_reference_latex(self):
+        if self.title is None:
+            print('reference must be loaded before formatting')
+            return
+        line = self.authors +\
+            ' (%s). ' % self.year +\
+            ' \\textit{%s}. ' % self.title.strip(' ').strip('.') + \
+            self.publisher.strip(' ')
+        line += '.'
+        return(line)
 
 
 if __name__ == "__main__":
