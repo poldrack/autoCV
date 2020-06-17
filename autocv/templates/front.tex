@@ -1,0 +1,57 @@
+%------------------------------------
+% autoCV template - Russell Poldrack, 2020
+% License: MIT License
+%
+% Adapted from original template by: 
+% Dario Taraborelli
+% Typesetting your academic CV in LaTeX
+%
+% URL: http://nitens.org/taraborelli/cvtex
+% DISCLAIMER: This template is provided for free and without any guarantee 
+% that it will correctly compile on your system if you have a non-standard  
+% configuration.
+%------------------------------------
+
+
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[10pt, letterpaper]{article}
+\usepackage{fontspec} 
+
+\usepackage{multibib}
+\usepackage{multicol}
+\usepackage[compact]{titlesec}
+
+\titlespacing{\section}{2pt}{*2}{*0}
+\titlespacing{\subsection}{2pt}{*2}{*0}
+\titlespacing{\subsubsection}{2pt}{*2}{*0}
+
+% DOCUMENT LAYOUT
+\usepackage{geometry} 
+\geometry{letterpaper, textwidth=7.25in, textheight=9.5in, marginparsep=7pt, marginparwidth=.6in}
+\setlength\parindent{0in}
+
+% FONTS
+\defaultfontfeatures{Mapping=tex-text} % converts LaTeX specials (``quotes'' --- dashes etc.) to unicode
+
+
+% ---- MARGIN YEARS
+\newcommand{\years}[1]{\marginpar{\scriptsize #1}}
+
+% HEADINGS
+\usepackage{sectsty} 
+\usepackage[normalem]{ulem} 
+\sectionfont{\rmfamily\mdseries\upshape\Large}
+\subsectionfont{\rmfamily\bfseries\upshape\normalsize} 
+\subsubsectionfont{\rmfamily\mdseries\upshape\normalsize} 
+
+% PDF SETUP
+% ---- FILL IN HERE THE DOC TITLE AND AUTHOR
+
+\usepackage[bookmarks, colorlinks, breaklinks, pdftitle={Curriculum Vitae},pdfauthor={Author}]{hyperref}  
+\hypersetup{linkcolor=blue,citecolor=blue,filecolor=black,urlcolor=blue}
+
+\renewcommand\UrlFont{\color{red}\rmfamily\em}
+
+

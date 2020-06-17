@@ -67,7 +67,7 @@ if __name__ == "__main__":
           url=URL,
           download_url=DOWNLOAD_URL,
           packages=find_packages(),
-          package_data={'autocv': ['templates/*']},
+          package_data={'autocv': ['templates/*', 'testdata/*']},
           scripts=[
               'bin/make_cv.py',
               'bin/autoCV'],
