@@ -137,4 +137,3 @@ def test_latex_cv_render_latex(latexcv):
 def test_latex_cv_write_latex(latexcv, tmpdir_factory):
     outfile = tmpdir_factory.mktemp("data").join("test.tex")
     latexcv.write_latex(outfile)
-
