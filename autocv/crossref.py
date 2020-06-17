@@ -78,8 +78,13 @@ def parse_crossref_record(record, verbose=False, exclude_preprints=True,
         journal_issue = record['journal-issue']
         if 'published-print' in journal_issue:
             year = journal_issue['published-print']['date-parts'][0][0]
-        else:
+        elif 'published-online' in journal_issue:
             year = journal_issue['published-online']['date-parts'][0][0]
+        else:
+            print('problem getting year for:', pub)
+            return(None)
+    elif 'published-online' in record:
+        year = record['published-online']['date-parts'][0][0]
     else:
         print('problem getting year for:', pub)
         return(None)
