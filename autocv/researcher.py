@@ -11,7 +11,7 @@ from .orcid import get_dois_from_orcid_record
 from .pubmed import get_pubmed_data
 from .publication import JournalArticle, Book, BookChapter
 from .crossref import get_crossref_records, parse_crossref_record
-from .utils import get_additional_pubs_from_csv, NpEncoder, get_random_hash
+from .utils import get_additional_pubs_from_csv, CustomJSONEncoder, get_random_hash
 
 
 class Researcher:
@@ -185,5 +185,5 @@ class Researcher:
         if self.serialized is None:
             self.serialize()
         with open(filename, 'w') as f:
-            json.dump(self.serialized, f, cls=NpEncoder,
+            json.dump(self.serialized, f, cls=CustomJSONEncoder,
                       indent=4)
