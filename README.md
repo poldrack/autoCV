@@ -23,29 +23,21 @@ Using it requires that the user first enter some relevant information into their
 
 In addition, it requires generating several CSV files containing other information that is not well organized or available within ORCID:
 
-* **[conference.csv](tests/conference.csv)**: Conference presentations
-* **[talks.csv](tests/talks.csv)**: Colloquium and other talks
-* **[funding.csv](tests/funding.csv)**: Grants and other funding
-* **[editorial.csv](tests/editorial.csv)**: Editorial duties and reviewing
-* **[additional_pubs.csv](tests/additional_pubs.csv)**: Publications that are not found in PubMed/ORCID (including books, book chapters, and conference proceedings - note that ORCID allows addition of books but the metadata are a bit screwy, so I prefer entering them manually in this file)
-* **[teaching.csv](tests/teaching.csv)**: Courses taught
+* **[conference.csv](autocv/testdata/conference.csv)**: Conference presentations
+* **[talks.csv](autocv/testdata/talks.csv)**: Colloquium and other talks
+* **[funding.csv](autocv/testdata/funding.csv)**: Grants and other funding
+* **[editorial.csv](autocv/testdata/editorial.csv)**: Editorial duties and reviewing
+* **[additional_pubs.csv](autocv/testdata/additional_pubs.csv)**: Publications that are not found in PubMed/ORCID (including books, book chapters, and conference proceedings - note that ORCID allows addition of books but the metadata are a bit screwy, so I prefer entering them manually in this file)
+* **[teaching.csv](autocv/testdata/teaching.csv)**: Courses taught
 
-It also allows addition of links to any reference using a csv file called **[links.csv](tests/links.csv)**.
+It also allows addition of links to any reference using a csv file called **[links.csv](autocv/testdata/links.csv)**.
 
-Finally, you will need to generate a json file called params.json that contains some metadata about you - see example [here](tests/params.json).
+Finally, you will need to generate a json file called params.json that contains some metadata about you - see example [here](autocv/testdata/params.json).
 
 You will need to take a look at the examples of these files in the repository to see their structure.
 
+You can see an example of the output [here](autocv/testdata/autocv_template.pdf).
+
 ## Running the code
 
-The easiest way to run the code is using Docker, which removes the need to install a full LaTeX installation.  After [installing the Docker client](https://docs.docker.com/get-docker/), you can simply install the package:
-
-```pip install autocv```
-
-and then use this command from a directory containing the necessary files:
-
-```autoCV```
-
-This will download the data and generate the CV files, and then render them to PDF.
-
-To test it out, you can run it from within the *tests* directory, which contains example files for my CV.  You can see an example of the output [here](tests/autocv_template.pdf).
+TBD
