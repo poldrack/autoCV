@@ -3,10 +3,13 @@
 main script for autoCV
 """
 
+
 import os
 import argparse
 from autocv.researcher import Researcher
 from autocv.latex import LatexCV
+import shutil
+import subprocess
 
 
 if __name__ == "__main__":
@@ -16,27 +19,35 @@ if __name__ == "__main__":
         description='Automated CV generation')
     parser.add_argument('-b', '--basedir',
                         help='base directory')
+    parser.add_argument('-n', '--norender', default=False,
+                        help='do not render pdf')
     parser.add_argument('-o', '--outfile',
                         help='Name of output .tex file')
+    parser.add_argument('-x', '--xelatex',
+                        help='location of xelatex')
+    parser.add_argument('-j', '--json',
+                        help='json file to use (instead of downloading')
+
     args = parser.parse_args()
 
     # set up base directory
-    if args.basedir is not None:
-        basedir = args.basedir
-    else:
-        basedir = './'
+    basedir = args.basedir if args.basedir is not None else './'
     print("using basedir:", basedir)
 
     paramfile = os.path.join(basedir, 'params.json')
     assert os.path.exists(paramfile)
     r = Researcher(paramfile)
-    r.get_orcid_data()
-    r.get_orcid_dois()
-    r.get_pubmed_data()
-    r.get_google_scholar_record()
-    r.get_patents()
-    r.make_publication_records()
-    r.to_json('test.json')
+    if args.json is None:
+        r.get_orcid_data()
+        r.get_orcid_dois()
+        r.get_pubmed_data()
+        r.get_google_scholar_record()
+        r.get_patents()
+        r.make_publication_records()
+        r.to_json('test.json')
+    else:
+        r.from_json(args.json)
+
     latex = LatexCV(r)
     latex.render_latex()
     latex.load_template_files()
@@ -52,3 +63,10 @@ if __name__ == "__main__":
             )
         )
     latex.write_latex(outfile)
+
+    if not args.norender:
+        xelatex = args.xelatex if args.xelatex else shutil.which('xelatex')
+        if xelatex is None:
+            print('no xelatex executable found - skipping pdf rendering')
+        print('rendering PDF')
+        subprocess.call([xelatex, outfile])
