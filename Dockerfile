@@ -1,6 +1,6 @@
 # Dockerfile for autoCV
 
-FROM python:3.6-stretch
+FROM python:3.8-buster
 
 # apt-get installs
 ENV DEBIAN_FRONTEND noninteractive
@@ -25,7 +25,9 @@ RUN pip install \
     crossrefapi \
     scholarly \
     pypatent \
-    pytest
+    pytest \
+    pytest-cov \
+    flake8
 
 ## this forces rebuild each time, when build arg is set to date
 ARG DUMMY=unknown
