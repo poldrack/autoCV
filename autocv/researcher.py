@@ -44,7 +44,8 @@ class Researcher:
 
     def get_orcid_data(self):
         resp = requests.get("http://pub.orcid.org/%s" % self.orcid,
-                            headers={'Accept': 'application/orcid+json'})
+                            headers={'Accept': 'application/orcid+json'},
+                            timeout=10)
         self.orcid_data = resp.json()
 
     def get_orcid_dois(self):
