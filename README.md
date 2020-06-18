@@ -1,5 +1,6 @@
 # autoCV
-
+![Python package](https://github.com/poldrack/autoCV/workflows/Python%20package/badge.svg)
+[![codecov](https://codecov.io/gh/poldrack/autoCV/branch/master/graph/badge.svg)](https://codecov.io/gh/poldrack/autoCV)
 [![PyPI version](https://badge.fury.io/py/autocv.svg)](https://badge.fury.io/py/autocv)
 
 A tool for automatic generation of a LaTeX-based curriculum vitae (CV)
