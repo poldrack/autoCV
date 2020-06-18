@@ -8,6 +8,7 @@ import numpy as np
 import random
 import string
 import json
+import scholarly
 
 
 def get_random_hash(length=16):
@@ -15,9 +16,13 @@ def get_random_hash(length=16):
 
 
 # from https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable/50916741
-class NpEncoder(json.JSONEncoder):
+class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, np.integer):
+        if isinstance(obj, scholarly._navigator.Navigator):
+            return ''
+        elif isinstance(obj, set):
+            return ''
+        elif isinstance(obj, np.integer):
             return int(obj)
         elif isinstance(obj, np.floating):
             return float(obj)
@@ -26,7 +31,7 @@ class NpEncoder(json.JSONEncoder):
         elif obj is None:
             return ''
         else:
-            return super(NpEncoder, self).default(obj)
+            return super(CustomJSONEncoder, self).default(obj)
 
 
 def get_params(param_file='params.json'):
