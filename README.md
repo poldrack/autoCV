@@ -44,4 +44,4 @@ First you should install the package:
 
 ```pip install -U autocv```
 
-Then you can run the full process by simply typing ```autoCV``` from the directory that contains all of the necessary files.  
+Then you can run the full process by simply typing ```autoCV``` from the directory that contains all of the necessary files.  Type ```autoCV -h``` for additional options.
