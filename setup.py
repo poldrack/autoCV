@@ -15,7 +15,7 @@ MAINTAINER_EMAIL = 'poldrack@stanford.edu'
 LICENSE = 'MIT'
 URL = 'https://github.com/poldrack/autoCV'
 DOWNLOAD_URL = 'https://github.com/poldrack/autoCV'
-VERSION = '1.0a2'
+VERSION = '1.1'
 
 
 def check_dependencies():
@@ -69,7 +69,6 @@ if __name__ == "__main__":
           packages=find_packages(),
           package_data={'autocv': ['templates/*', 'testdata/*']},
           scripts=[
-              'bin/make_cv.py',
               'bin/autoCV'],
           classifiers=[
               'Intended Audience :: Science/Research',
