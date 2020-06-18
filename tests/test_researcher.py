@@ -12,7 +12,7 @@ from autocv.orcid import get_orcid_funding
 from autocv.orcid import get_orcid_employment
 from autocv.orcid import get_orcid_memberships
 from autocv.orcid import get_orcid_service
-from autocv.latex import LatexCV
+
 
 # test fixtures to share across tests
 @pytest.fixture(scope="session")
@@ -26,12 +26,6 @@ def researcher():
 def jsonfile(tmpdir_factory):
     fn = tmpdir_factory.mktemp("data").join("test.json")
     return(fn)
-
-
-@pytest.fixture(scope="session")
-def latexcv(researcher):
-    latexcv = LatexCV(researcher)
-    return(latexcv)
 
 
 # tests
@@ -115,25 +109,3 @@ def test_from_json(researcher, jsonfile):
     # spot check
     assert len(researcher.pubmed_data['PubmedArticle']) ==\
         len(researcher_tmp.pubmed_data['PubmedArticle'])
-
-
-# include latex checks here - really just smoke tests
-def test_latex_cv_class(latexcv):
-    assert latexcv is not None
-
-
-def test_latex_cv_load_template_files(latexcv):
-    latexcv.load_template_files()
-    assert latexcv.front is not None
-    assert latexcv.back is not None
-
-
-def test_latex_cv_render_latex(latexcv):
-    latexcv.render_latex()
-    for section in latexcv.sections_to_write:
-        assert hasattr(latexcv, section)
-
-
-def test_latex_cv_write_latex(latexcv, tmpdir_factory):
-    outfile = tmpdir_factory.mktemp("data").join("test.tex")
-    latexcv.write_latex(outfile)
