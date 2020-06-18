@@ -40,4 +40,8 @@ You can see an example of the output [here](autocv/testdata/autocv_template.pdf)
 
 ## Running the code
 
-TBD
+First you should install the package:
+
+```pip install -U autocv```
+
+Then you can run the full process by simply typing ```autoCV``` from the directory that contains all of the necessary files.  
