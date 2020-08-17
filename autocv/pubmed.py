@@ -5,11 +5,10 @@ functions to work with pubmed data
 from Bio import Entrez
 
 
-def get_pubmed_data(query, email):
+def get_pubmed_data(query, email, retmax=1000):
     Entrez.email = email
     print(f'using {email} for Entrez service')
     print('searching for', query)
-    retmax = 1000
     handle = Entrez.esearch(db="pubmed", retmax=retmax, term=query)
     record = Entrez.read(handle)
     handle.close()
