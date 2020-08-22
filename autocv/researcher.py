@@ -43,7 +43,9 @@ class Researcher:
             setattr(self, field, params[field])
 
     def get_orcid_data(self):
-        resp = requests.get("http://pub.orcid.org/%s" % self.orcid,
+        orcid_url = "https://pub.orcid.org/v2.1/%s" % self.orcid
+        print('using ORCID URL:', orcid_url)
+        resp = requests.get(orcid_url,
                             headers={'Accept': 'application/orcid+json'},
                             timeout=10)
         self.orcid_data = resp.json()
