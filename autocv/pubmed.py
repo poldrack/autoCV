@@ -95,10 +95,20 @@ def get_pubmed_authors(record):
     return(authors)
 
 
+def get_pubmed_abstract(record):
+    abstract = None
+    if 'Abstract' in record['MedlineCitation']['Article']:
+        if 'AbstractText' in record['MedlineCitation']['Article']['Abstract']:
+            abstract = ' '.join(
+                record['MedlineCitation']['Article']['Abstract']['AbstractText'])
+    return(abstract)
+
+
 def parse_pubmed_record(record):
 
     return({
         'DOI': get_pubmed_doi(record),
+        'Abstract': get_pubmed_abstract(record),
         'PMC': get_pubmed_pmcid(record),
         'PMID': get_pubmed_pmid(record),
         'type': 'journal-article',
