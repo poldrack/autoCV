@@ -42,12 +42,12 @@ class Researcher:
         for field in params:
             setattr(self, field, params[field])
 
-    def get_orcid_data(self):
-        orcid_url = "https://pub.orcid.org/v2.1/%s" % self.orcid
+    def get_orcid_data(self, timeout=60):
+        orcid_url = "https://pub.orcid.org/v3.0/%s" % self.orcid
         print('using ORCID URL:', orcid_url)
         resp = requests.get(orcid_url,
-                            headers={'Accept': 'application/orcid+json'},
-                            timeout=10)
+                            headers={'Accept': 'application/vnd.orcid+json'},
+                            timeout=timeout)
         self.orcid_data = resp.json()
 
     def get_orcid_dois(self):
