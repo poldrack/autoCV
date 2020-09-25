@@ -280,7 +280,7 @@ class LatexCV:
     def render_presentations(self, presentations_filename='conference.csv'):
         presentations_file = os.path.join(self.researcher.basedir, presentations_filename)
         if os.path.exists(presentations_file):
-            presentations = pd.read_csv(presentations_file, index_col=0)
+            presentations = pd.read_csv(presentations_file) #, index_col=0)
         else:
             return
 
@@ -298,7 +298,7 @@ class LatexCV:
     def render_talks(self, talks_filename='talks.csv'):
         talks_file = os.path.join(self.researcher.basedir, talks_filename)
         if os.path.exists(talks_file):
-            talks = pd.read_csv(talks_file, index_col=0)
+            talks = pd.read_csv(talks_file) #, index_col=0)
         else:
             return
         years = list(talks.year.unique())
