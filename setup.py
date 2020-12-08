@@ -15,7 +15,7 @@ MAINTAINER_EMAIL = 'poldrack@stanford.edu'
 LICENSE = 'MIT'
 URL = 'https://github.com/poldrack/autoCV'
 DOWNLOAD_URL = 'https://github.com/poldrack/autoCV'
-VERSION = '1.3'
+VERSION = '1.3.1'
 
 
 def check_dependencies():
@@ -69,7 +69,7 @@ if __name__ == "__main__":
           packages=find_packages(),
           package_data={'autocv': ['templates/*', 'testdata/*']},
           scripts=[
-              'bin/autoCV'],
+              'bin/autoCV', 'bin/get_NSF_collaborators'],
           classifiers=[
               'Intended Audience :: Science/Research',
               'Programming Language :: Python :: 3.6',
