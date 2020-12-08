@@ -15,7 +15,7 @@ MAINTAINER_EMAIL = 'poldrack@stanford.edu'
 LICENSE = 'MIT'
 URL = 'https://github.com/poldrack/autoCV'
 DOWNLOAD_URL = 'https://github.com/poldrack/autoCV'
-VERSION = '1.2'
+VERSION = '1.3'
 
 
 def check_dependencies():
