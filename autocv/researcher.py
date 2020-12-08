@@ -11,7 +11,7 @@ from .orcid import get_dois_from_orcid_record
 from .pubmed import get_pubmed_data
 from .publication import JournalArticle, Book, BookChapter
 from .crossref import get_crossref_records, parse_crossref_record
-from .utils import get_additional_pubs_from_csv, CustomJSONEncoder, get_random_hash
+from .utils import get_additional_pubs_from_csv, CustomJSONEncoder, get_random_hash, drop_excluded_pubs
 
 
 class Researcher:
@@ -64,7 +64,7 @@ class Researcher:
             ' '.join([self.firstname, self.lastname]))
         self.gscholar_data = next(search_query).fill()
 
-    def make_publication_records(self):
+    def make_publication_records(self, use_exclusions=True):
         # test pubmed
         self.get_pubmed_data()
         pubmed_dois = []
@@ -114,6 +114,9 @@ class Researcher:
                     id = get_random_hash()
 
                 self.publications[id] = p
+        if use_exclusions:
+            self.publications = drop_excluded_pubs(self.publications)
+
         print('found %d additional pubs from ORCID via crossref' % (len(self.publications) - len(pubmed_dois)))
 
         additional_pubs_file = os.path.join(
