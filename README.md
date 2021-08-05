@@ -45,3 +45,7 @@ First you should install the package:
 ```pip install -U autocv```
 
 Then you can run the full process by simply typing ```autoCV``` from the directory that contains all of the necessary files.  Type ```autoCV -h``` for additional options.
+
+## NSF Collaborators list
+
+You can use bin/get_NSF_collaborators to create a spreadsheet that generates the raw material from which one can assemble their NSF collaborators spreadsheet.
