@@ -295,7 +295,7 @@ class LatexCV:
             self.presentations += '%s (%s). \\emph{%s}. %s. \\vspace{2mm}\n\n' % (
                 entry.authors, entry.year, title, location)
 
-    def render_talks(self, talks_filename='talks.csv'):
+    def render_talks(self, talks_filename='talks.csv', verbose=True):
         talks_file = os.path.join(self.researcher.basedir, talks_filename)
         if os.path.exists(talks_file):
             talks = pd.read_csv(talks_file) #, index_col=0)
@@ -303,10 +303,13 @@ class LatexCV:
             return
         years = list(talks.year.unique())
         years.sort()
-        years = years[::-1]
-
+        if verbose:
+            years = years[::-1]
+        print('years:', years)
         lines = '\\section*{Invited addresses and colloquia (* - talks given virtually)}\n\\noindent\n\n'
         for y in years:
+            if verbose:
+                print('year', y)
             talks_year = talks.query('year == %s' % y)
             lines += '%s: %s \\vspace{2mm}\n\n' % (y, ','.join(list(talks_year.place)))
         self.talks = lines

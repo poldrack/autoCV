@@ -62,7 +62,8 @@ class Researcher:
     def get_google_scholar_record(self):
         search_query = scholarly.scholarly.search_author(
             ' '.join([self.firstname, self.lastname]))
-        self.gscholar_data = next(search_query).fill()
+        query_resp = next(search_query)
+        self.gscholar_data = scholarly.scholarly.fill(query_resp)
 
     def make_publication_records(self, use_exclusions=True):
         # test pubmed
@@ -168,24 +169,29 @@ class Researcher:
                     setattr(self, k, serialized[k])
 
     def serialize(self):
-        self.serialized = self.__dict__.copy()
-        if 'gscholar_data' in self.serialized:
-            # need to convert gscholar objects to dicts
-            self.serialized['gscholar_data'] = self.serialized['gscholar_data'].__dict__
-
-            coauthor_data = self.serialized['gscholar_data']['coauthors'].copy()
-            self.serialized['gscholar_data']['coauthors'] = []
-            for k in coauthor_data:
-                self.serialized['gscholar_data']['coauthors'].append(k.__dict__)
-
-            publication_data = self.serialized['gscholar_data']['publications'].copy()
-            self.serialized['gscholar_data']['publications'] = []
-            for k in publication_data:
-                self.serialized['gscholar_data']['publications'].append(k.__dict__)
+        self.serialized = {}
+        self_dict = self.__dict__.copy()
+        if 'gscholar_data' in self_dict:
+            self.serialized['gscholar_data'] = {
+                'hindex': self_dict['gscholar_data']['hindex']}
 
         self.serialized['publications'] = {}
-        for k in self.publications:
-            self.serialized['publications'][k] = self.publications[k].to_json()
+        for k, pubinfo_orig in self.publications.items():
+            pubinfo = pubinfo_orig.to_json()
+            if len(pubinfo) == 0:
+                print('skipping', k)
+                continue
+            else:
+                print('keeping', k)
+            # fields_to_drop = []
+            # for kk, subfields in pubinfo.items():
+            #     try:
+            #         _ = json.dumps(subfields)
+            #     except:
+            #         fields_to_drop.append(kk)
+            # for f in fields_to_drop:
+            #     del pubinfo[f]
+            self.serialized['publications'][k] = pubinfo   # .to_json()
 
     def to_json(self, filename):
         if self.serialized is None:

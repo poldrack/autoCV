@@ -147,7 +147,7 @@ class BookChapter(Publication):
             return
 
         page_string = ''
-        if hasattr(self, 'page') and len(self.page) > 0:
+        if hasattr(self, 'page') and self.page is not None and len(self.page) > 0:
             page_string = '(p. %s). ' % self.page
         return self.authors +\
             ' (%s). ' % self.year +\
