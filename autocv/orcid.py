@@ -105,10 +105,10 @@ def get_orcid_distinctions(orcid_data):
             distinction_type='Honor')
 
     for e in orcid_data['activities-summary']['invited-positions']['affiliation-group']:
+        ctr += 1
         distinctions_df.loc[ctr, :] = parse_orcid_distinctions_record(
             e['summaries'][0]['invited-position-summary'],
             distinction_type='Visiting position')
-        ctr += 1
 
     distinctions_df = distinctions_df.sort_values('start_date', ascending=False)
     return(distinctions_df)
