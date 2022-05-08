@@ -18,62 +18,38 @@ DOWNLOAD_URL = 'https://github.com/poldrack/autoCV'
 VERSION = '1.3.2'
 
 
-def check_dependencies():
-
-    # Just make sure dependencies exist, I haven't rigorously
-    # tested what the minimal versions that will work are
-    needed_deps = [
-        "pandas",
-        "numpy",
-        "Bio",
-        "requests",
-        "crossref",
-        "scholarly",
-        "pypatent",
-        "pytest"]
-    missing_deps = []
-    for dep in needed_deps:
-        try:
-            __import__(dep)
-        except ImportError:
-            missing_deps.append(dep)
-
-    if missing_deps:
-        missing = (", ".join(missing_deps))
-        raise ImportError("Missing dependencies: %s" % missing)
-
-
 if __name__ == "__main__":
 
     if os.path.exists('MANIFEST'):
         os.remove('MANIFEST')
 
-    import sys
-    if not (len(sys.argv) >= 2 and (
-        '--help' in sys.argv[1:] or sys.argv[1] in (
-            '--help-commands',
-            '--version',
-            'egg_info',
-            'clean'))):
-        check_dependencies()
-
-    setup(name=DISTNAME,
-          maintainer=MAINTAINER,
-          maintainer_email=MAINTAINER_EMAIL,
-          description=DESCRIPTION,
-          long_description=LONGDESCRIPTION,
-          license=LICENSE,
-          version=VERSION,
-          url=URL,
-          download_url=DOWNLOAD_URL,
-          packages=find_packages(),
-          package_data={'autocv': ['templates/*', 'testdata/*']},
-          scripts=[
-              'bin/autoCV', 'bin/get_NSF_collaborators'],
-          classifiers=[
-              'Intended Audience :: Science/Research',
-              'Programming Language :: Python :: 3.6',
-              'License :: OSI Approved :: BSD License',
-              'Operating System :: POSIX',
-              'Operating System :: Unix',
-              'Operating System :: MacOS'])
+    setup(
+        name=DISTNAME,
+        maintainer=MAINTAINER,
+        maintainer_email=MAINTAINER_EMAIL,
+        description=DESCRIPTION,
+        long_description=LONGDESCRIPTION,
+        license=LICENSE,
+        version=VERSION,
+        url=URL,
+        download_url=DOWNLOAD_URL,
+        packages=find_packages(),
+        package_data={'autocv': ['templates/*', 'testdata/*']},
+        scripts=[
+            'bin/autoCV', 'bin/get_NSF_collaborators'],
+        install_requires=[
+            "pandas",
+            "numpy",
+            "Bio",
+            "requests",
+            "crossrefapi",
+            "scholarly",
+            "pypatent",
+            "pytest"],
+        classifiers=[
+            'Intended Audience :: Science/Research',
+            'Programming Language :: Python :: 3.6',
+            'License :: OSI Approved :: BSD License',
+            'Operating System :: POSIX',
+            'Operating System :: Unix',
+            'Operating System :: MacOS'])
