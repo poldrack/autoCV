@@ -50,7 +50,23 @@ Then you can run the full process by simply typing ```autoCV``` from the directo
 
 ## NSF Collaborators list
 
-You can use bin/get_NSF_collaborators to create a spreadsheet that generates the raw material from which one can assemble their NSF collaborators spreadsheet.
+You can use bin/get_NSF_collaborators to create a spreadsheet that generates the raw material from which one can assemble their NSF collaborators spreadsheet.  To use this you will need to create a json file that contains details about you; here is an example of what mine looks like:
+
+```
+{
+    "lastname": "poldrack",
+    "middlename": "alan",
+    "firstname": "russell",
+    "email": "russpold@stanford.edu",
+    "orcid": "0000-0001-6755-0259",
+    "query": "poldrack-r",
+    "url": "http://www.poldracklab.org",
+    "twitter": "@russpoldrack",
+    "github": "http://github.com/poldrack",
+    "phone": "xxx-xxx-xxxx",
+    "address": [ "Stanford University", "Department of Psychology", "Building 420", "450 Jane Stanford Way", "Stanford, CA, 94305-2130" ]
+}
+```
 
 ## Testing
 
