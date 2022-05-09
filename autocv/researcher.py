@@ -171,7 +171,7 @@ class Researcher:
     def serialize(self):
         self.serialized = {}
         self_dict = self.__dict__.copy()
-        if 'gscholar_data' in self_dict:
+        if 'gscholar_data' in self_dict and 'hindex' in self_dict['gscholar_data']:
             self.serialized['gscholar_data'] = {
                 'hindex': self_dict['gscholar_data']['hindex']}
 
