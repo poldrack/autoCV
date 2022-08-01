@@ -171,5 +171,5 @@ def escape_characters_for_latex(pub):
     for field in pub.__dict__.keys():
         value = getattr(pub, field)
         if hasattr(value, 'replace'):
-            setattr(pub, field, value.replace(' &', ' \&') ) # noqa
+            setattr(pub, field, value.replace(r' &', r' \&') ) # noqa
     return(pub)
