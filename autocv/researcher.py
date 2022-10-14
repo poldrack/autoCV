@@ -137,7 +137,13 @@ class Researcher:
             self.publications[pub].from_dict(additional_pubs[pub])
 
     def get_patents(self):
-        results = pypatent.Search(self.lastname).as_list()
+        try:
+            # this will fail if there are no patents
+            results = pypatent.Search(self.lastname).as_list()
+        except AttributeError:
+            print('pypatent failed to retrieve patents')
+            results = []
+
         self.patent_data = []
         for r in results:
             for i in r['inventors']:
