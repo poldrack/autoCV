@@ -30,6 +30,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+
+    # set up base directory
+    basedir = args.basedir if args.basedir is not None else './'
+    print("using basedir:", basedir)
+
+    paramfile = os.path.join(basedir, 'params.json')
+    assert os.path.exists(paramfile)
+    r = Researcher(paramfile)
+
     if args.outfile is not None:
         outfile = args.outfile
     else:
@@ -41,13 +50,6 @@ if __name__ == "__main__":
             )
         )
 
-    # set up base directory
-    basedir = args.basedir if args.basedir is not None else './'
-    print("using basedir:", basedir)
-
-    paramfile = os.path.join(basedir, 'params.json')
-    assert os.path.exists(paramfile)
-    r = Researcher(paramfile)
     if args.json is None:
         r.get_orcid_data()
         r.get_orcid_dois()
