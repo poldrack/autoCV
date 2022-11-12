@@ -98,22 +98,40 @@ class JournalArticle(Publication):
         self.reference = None
         self.source = None
 
-    def format_reference_latex(self, etalthresh=10, etalnum=3):
+    def format_reference(self, etalthresh=10, etalnum=3, format='latex'):
 
         if self.title is None:
             print('reference must be loaded before formatting')
             return
         authors_shortened = shorten_authorlist(self.authors, etalthresh, etalnum)
 
-        line = authors_shortened +\
-            ' (%d). ' % self.year +\
-            self.title +\
-            ' \\textit{%s' % self.journal
+        if format == 'latex':
+            line = authors_shortened +\
+                ' (%d). ' % self.year +\
+                self.title +\
+                ' \\textit{%s' % self.journal
 
-        line += ', %s}' % self.volume if self.volume is not None else '}'
-        if self.page is not None and len(self.page) > 0:
-            line += ', %s' % self.page
-        line += '.'
+            line += ', %s}' % self.volume if self.volume is not None else '}'
+            if self.page is not None and len(self.page) > 0:
+                line += ', %s' % self.page
+            line += '.'
+        elif format == 'md':
+            if self.title is None:
+                print('reference must be loaded before formatting')
+                return
+            authors_shortened = shorten_authorlist(self.authors, etalthresh, etalnum)
+
+            line = authors_shortened +\
+                ' (%d). ' % self.year +\
+                self.title +\
+                ' *%s' % self.journal
+
+            line += ', %s*' % self.volume if self.volume is not None else '*'
+            if self.page is not None and len(self.page) > 0:
+                line += ', %s' % self.page
+            line += '.'
+        else:
+            raise ValueError('format must be latex or md')
         return(line)
 
     def from_pubmed(self, pubmed_record):
@@ -141,7 +159,7 @@ class BookChapter(Publication):
         self.publisher = publisher
         self.editors = editors
 
-    def format_reference_latex(self, etalthresh=None, etalnum=None):
+    def format_reference(self, etalthresh=None, etalnum=None, format='latex'):
         if self.title is None:
             print('reference must be loaded before formatting')
             return
@@ -149,14 +167,27 @@ class BookChapter(Publication):
         page_string = ''
         if hasattr(self, 'page') and self.page is not None and len(self.page) > 0:
             page_string = '(p. %s). ' % self.page
-        return self.authors +\
+        if format == 'latex':
+            line = self.authors +\
             ' (%s). ' % self.year +\
             self.title.strip('.') +\
-            '. In \\textit{%s.} %s%s.' % (
+           '. In \\textit{%s.} %s%s.' % (
                 self.journal,
                 page_string,
                 self.publisher.strip(' '))
 
+        elif format == 'md':
+            line = self.authors +\
+            ' (%s). ' % self.year +\
+            self.title.strip('.') +\
+            '. In *%s.* %s%s.' % (
+                self.journal,
+                page_string,
+                self.publisher.strip(' '))
+
+        else:
+            raise ValueError('format must be latex or md')
+        return(line)
 
 class Book(Publication):
 
@@ -175,13 +206,21 @@ class Book(Publication):
         self.publisher = publisher
         self.editors = editors
 
-    def format_reference_latex(self, etalthresh=None, etalnum=None):
+    def format_reference(self, etalthresh=None, etalnum=None, format='latex'):
         if self.title is None:
             print('reference must be loaded before formatting')
             return
-        line = self.authors +\
-            ' (%s). ' % self.year +\
-            ' \\textit{%s}. ' % self.title.strip(' ').strip('.') + \
-            self.publisher.strip(' ')
+        if format == 'latex':
+            line = self.authors +\
+                ' (%s). ' % self.year +\
+                ' *%s*. ' % self.title.strip(' ').strip('.') + \
+                self.publisher.strip(' ')
+        elif format == 'md':
+            line = self.authors +\
+                ' (%s). ' % self.year +\
+                ' \\textit{%s}. ' % self.title.strip(' ').strip('.') + \
+                self.publisher.strip(' ')
+        else:
+            raise ValueError('format must be latex or md')
         line += '.'
         return(line)
