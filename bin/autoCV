@@ -30,6 +30,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if args.outfile is not None:
+        outfile = args.outfile
+    else:
+        outfile = os.path.join(
+            basedir,
+            '%s_%s_cv.tex' % (
+                r.firstname,
+                r.lastname
+            )
+        )
+
     # set up base directory
     basedir = args.basedir if args.basedir is not None else './'
     print("using basedir:", basedir)
@@ -44,7 +55,7 @@ if __name__ == "__main__":
         r.get_google_scholar_record()
         r.get_patents()
         r.make_publication_records()
-        r.to_json('test.json')
+        r.to_json(outfile.replace('.tex', '.json'))
     else:
         r.from_json(args.json)
 
@@ -52,16 +63,6 @@ if __name__ == "__main__":
     latex.render_latex()
     latex.load_template_files()
 
-    if args.outfile is not None:
-        outfile = args.outfile
-    else:
-        outfile = os.path.join(
-            basedir,
-            '%s_%s_cv.tex' % (
-                r.firstname,
-                r.lastname
-            )
-        )
     latex.write_latex(outfile)
 
     if not args.norender:
