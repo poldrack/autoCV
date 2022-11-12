@@ -260,7 +260,7 @@ class LatexCV:
             for pub in keys_sorted_by_author:
                 self.researcher.publications[pub] = escape_characters_for_latex(self.researcher.publications[pub])
 
-                line = self.researcher.publications[pub].format_reference_latex(self.etalthresh, self.etalnum)
+                line = self.researcher.publications[pub].format_reference(self.etalthresh, self.etalnum, 'latex')
 
                 if hasattr(self.researcher.publications[pub], 'PMC') and self.researcher.publications[pub].PMC is not None:
                     line += ' \\href{https://www.ncbi.nlm.nih.gov/pmc/articles/%s}{OA}' % self.researcher.publications[pub].PMC
