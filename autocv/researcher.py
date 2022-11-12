@@ -16,7 +16,7 @@ from .utils import get_additional_pubs_from_csv, CustomJSONEncoder, get_random_h
 
 class Researcher:
 
-    def __init__(self, param_file='params.json', basedir=None):
+    def __init__(self, param_file='params.json', basedir=None, format='latex'):
         self.param_file = param_file
         self.load_params(param_file)
         self.basedir = os.path.dirname(param_file) if basedir is None else basedir
@@ -28,7 +28,7 @@ class Researcher:
         self.patent_data = None
         self.serialized = None
         self.publications = None
-        self.rendered_latex = None
+        self.format = format
 
     def load_params(self, param_file):
         if os.path.exists(param_file):
@@ -73,7 +73,8 @@ class Researcher:
         for r in self.pubmed_data['PubmedArticle']:
             pub = JournalArticle()
             pub.from_pubmed(r)
-            pub.format_reference_latex()
+
+            pub.format_reference(format=self.format)
             pub.hash = pub.get_pub_hash()
             self.publications[pub.DOI] = pub
             # keep track of pubmed DOIs so that we
@@ -157,7 +158,7 @@ class Researcher:
             serialized = json.load(f)
         for k in serialized.keys():
             if hasattr(self, k):
-                print('ingesting', k)
+                # print('ingesting', k)
                 if k == 'publications':
                     self.publications = {}
                     for pub in serialized[k]:
