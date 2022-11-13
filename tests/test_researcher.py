@@ -59,8 +59,8 @@ def test_researcher_get_google_scholar_record(researcher):
 
 def test_researcher_get_patents(researcher):
     researcher.get_patents()
-    # use number as of June 7, 2020
-    assert len(researcher.patent_data) >= 1
+    # use number as of Nov 2022
+    assert len(researcher.patent_data) == 0
 
 
 def test_orcid_get_education(researcher):
