@@ -3,6 +3,8 @@
 [![codecov](https://codecov.io/gh/poldrack/autoCV/branch/master/graph/badge.svg)](https://codecov.io/gh/poldrack/autoCV)
 [![PyPI version](https://badge.fury.io/py/autocv.svg)](https://badge.fury.io/py/autocv)
 
+NOTE: This project has been deprecated in favor of [AcademicDB](https://github.com/poldrack/academicdb) and is no longer being maintained.
+
 A tool for automatic generation of a LaTeX-based curriculum vitae (CV)
 
 ### Motivation
