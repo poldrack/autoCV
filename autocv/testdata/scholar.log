@@ -1,0 +1,8 @@
+INFO:scholarly:Getting https://scholar.google.com/citations?hl=en&view_op=search_authors&mauthors=russell%20poldrack
+INFO:scholarly:Found 1 authors
+INFO:scholarly:Getting https://scholar.google.com/citations?hl=en&user=RbmLvDIAAAAJ&pagesize=100
+INFO:scholarly:Getting https://scholar.google.com/citations?hl=en&user=RbmLvDIAAAAJ&cstart=100&pagesize=100
+INFO:scholarly:Getting https://scholar.google.com/citations?hl=en&user=RbmLvDIAAAAJ&cstart=200&pagesize=100
+INFO:scholarly:Getting https://scholar.google.com/citations?hl=en&user=RbmLvDIAAAAJ&cstart=300&pagesize=100
+INFO:scholarly:Getting https://scholar.google.com/citations?hl=en&user=RbmLvDIAAAAJ&cstart=400&pagesize=100
+INFO:scholarly:Getting https://scholar.google.com/citations?hl=en&user=RbmLvDIAAAAJ&cstart=500&pagesize=100
