@@ -97,6 +97,7 @@ class JournalArticle(Publication):
         self.links = {}
         self.reference = None
         self.source = None
+        self.pubmed_data = None
 
     def format_reference(self, etalthresh=10, etalnum=3, format='latex'):
 
@@ -139,6 +140,7 @@ class JournalArticle(Publication):
         self.source = 'Pubmed'
         for k in parsed_record:
             setattr(self, k, parsed_record[k])
+        self.pubmed_data = pubmed_record
 
 
 class BookChapter(Publication):

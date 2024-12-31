@@ -6,7 +6,10 @@ import os
 import json
 import requests
 import scholarly
+from scholarly import MaxTriesExceededException
 import pypatent
+from urllib.error import HTTPError
+
 from .orcid import get_dois_from_orcid_record
 from .pubmed import get_pubmed_data
 from .publication import JournalArticle, Book, BookChapter
@@ -20,15 +23,20 @@ class Researcher:
         self.param_file = param_file
         self.load_params(param_file)
         self.basedir = os.path.dirname(param_file) if basedir is None else basedir
-        self.orcid_data = None
-        self.orcid_dois = None
-        self.pubmed_data = None
-        self.crossref_data = None
-        self.gscholar_data = None
-        self.patent_data = None
-        self.serialized = None
-        self.publications = None
         self.format = format
+        fields_to_add = [
+            'orcid_data',
+            'orcid_dois',
+            'pubmed_data',
+            'crossref_data',
+            'gscholar_data',
+            'patent_data',
+            'serialized',
+            'publications',
+        ]
+        for field in fields_to_add:
+            if not hasattr(self, field):
+                setattr(self, field, None)
 
     def load_params(self, param_file):
         if os.path.exists(param_file):
@@ -49,6 +57,9 @@ class Researcher:
                             headers={'Accept': 'application/vnd.orcid+json'},
                             timeout=timeout)
         self.orcid_data = resp.json()
+        if 'error-code' in self.orcid_data:
+            raise ValueError(
+                f"problem accessing ORCID: {self.orcid_data['developer-message']}")
 
     def get_orcid_dois(self):
         if self.orcid_data is None:
@@ -60,10 +71,14 @@ class Researcher:
         print('retrieved %d full pubmed records' % len(self.pubmed_data['PubmedArticle']))
 
     def get_google_scholar_record(self):
-        search_query = scholarly.scholarly.search_author(
-            ' '.join([self.firstname, self.lastname]))
-        query_resp = next(search_query)
-        self.gscholar_data = scholarly.scholarly.fill(query_resp)
+        try:
+            search_query = scholarly.scholarly.search_author(
+                ' '.join([self.firstname, self.lastname]))
+            query_resp = next(search_query)
+            self.gscholar_data = scholarly.scholarly.fill(query_resp)
+        except MaxTriesExceededException:
+            print('problem accessing google scholar')
+
 
     def make_publication_records(self, use_exclusions=True):
         # test pubmed
@@ -175,13 +190,7 @@ class Researcher:
                 else:
                     setattr(self, k, serialized[k])
 
-    def serialize(self):
-        self.serialized = {}
-        self_dict = self.__dict__.copy()
-        if 'gscholar_data' in self_dict and 'hindex' in self_dict['gscholar_data']:
-            self.serialized['gscholar_data'] = {
-                'hindex': self_dict['gscholar_data']['hindex']}
-
+    def serialize_publications(self):
         self.serialized['publications'] = {}
         for k, pubinfo_orig in self.publications.items():
             pubinfo = pubinfo_orig.to_json()
@@ -189,16 +198,16 @@ class Researcher:
                 print('skipping', k)
                 continue
             else:
-                print('keeping', k)
-            # fields_to_drop = []
-            # for kk, subfields in pubinfo.items():
-            #     try:
-            #         _ = json.dumps(subfields)
-            #     except:
-            #         fields_to_drop.append(kk)
-            # for f in fields_to_drop:
-            #     del pubinfo[f]
-            self.serialized['publications'][k] = pubinfo   # .to_json()
+                self.serialized['publications'][k] = pubinfo
+
+    def serialize(self):
+        self.serialized = {}
+        self_dict = self.__dict__.copy()
+        if 'gscholar_data' in self_dict and self_dict['gscholar_data'] is not None and 'hindex' in self_dict['gscholar_data']:
+            self.serialized['gscholar_data'] = {
+                'hindex': self_dict['gscholar_data']['hindex']}
+        
+        self.serialize_publications()
 
     def to_json(self, filename):
         if self.serialized is None:

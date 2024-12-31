@@ -245,14 +245,15 @@ class MarkdownCV:
 
         years = list({self.researcher.publications[i].year for i in self.researcher.publications})
         years.sort(reverse=True)
-        if hasattr(self.researcher, 'gscholar'):
-            hindex = self.researcher.gscholar.hindex
-        elif hasattr(self.researcher, 'gscholar_data'):
-            # loaded from json
-            try:
-                hindex = self.researcher.gscholar_data['hindex']
-            except TypeError:
-                hindex = self.researcher.gscholar_data.hindex
+        # if hasattr(self.researcher, 'gscholar') and self.researcher.gscholar is not None:
+        #     hindex = self.researcher.gscholar.hindex
+        # elif hasattr(self.researcher, 'gscholar_data') and self.researcher.gscholar_data is not None:
+        #     # loaded from json
+        #     try:
+        #         hindex = self.researcher.gscholar_data['hindex']
+        #     except TypeError:
+        #         hindex = self.researcher.gscholar_data.hindex
+        # hindex = None
 
         self.publications = ''
 

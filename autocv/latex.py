@@ -238,16 +238,23 @@ class LatexCV:
 
         years = list({self.researcher.publications[i].year for i in self.researcher.publications})
         years.sort(reverse=True)
-        if hasattr(self.researcher, 'gscholar'):
+        if hasattr(self.researcher, 'hindex'):
+            hindex = self.researcher.hindex
+        elif hasattr(self.researcher, 'gscholar'):
             hindex = self.researcher.gscholar.hindex
         elif hasattr(self.researcher, 'gscholar_data'):
             # loaded from json
-            try:
+            if isinstance(self.researcher.gscholar_data, dict) and 'hindex' in self.researcher.gscholar_data:
                 hindex = self.researcher.gscholar_data['hindex']
-            except TypeError:
+            else:
                 hindex = self.researcher.gscholar_data.hindex
+        else:
+            hindex = None
 
-        self.publications = '\\section*{Publications (Google Scholar H-index = %d)}' % hindex
+        if hindex is None:
+            self.publications = '\\section*{Publications}'
+        else:
+            self.publications = '\\section*{Publications (Google Scholar H-index = %d)}' % hindex
 
         for year in years:
             self.publications += '\\subsection*{%s}' % year
